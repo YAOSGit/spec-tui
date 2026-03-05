@@ -15,18 +15,7 @@ export const RequestConfigProvider: React.FC<RequestConfigProviderProps> = ({
 }) => {
 	const state = useRequestConfigState();
 
-	const value: RequestConfigContextValue = useMemo(
-		() => state,
-		[
-			state.globalHeaders,
-			state.addHeader,
-			state.removeHeader,
-			state.updateHeader,
-			state.authConfig,
-			state.setAuthConfig,
-			state.setGlobalHeaders,
-		],
-	);
+	const value: RequestConfigContextValue = useMemo(() => state, [state]);
 
 	return (
 		<RequestConfigContext.Provider value={value}>

@@ -1,8 +1,8 @@
 import * as path from 'node:path';
 import { Box, Text } from 'ink';
-import { schemaSummary } from '../../utils/schemaToType/index.js';
-import { extractBodySchemaFields } from '../../utils/bodySchema/index.js';
 import type { BodyEditMode } from '../../providers/NavigationProvider/NavigationProvider.types.js';
+import { extractBodySchemaFields } from '../../utils/bodySchema/index.js';
+import { schemaSummary } from '../../utils/schemaToType/index.js';
 import type { FieldItem, FieldListProps } from './FieldList.types.js';
 
 function buildFieldItems(
@@ -95,10 +95,19 @@ export function FieldList({
 }: FieldListProps) {
 	const effectiveBodyFieldValues =
 		isArrayBody && bodyArrayItems && currentBodyItemIndex !== undefined
-			? bodyArrayItems[currentBodyItemIndex] ?? {}
+			? (bodyArrayItems[currentBodyItemIndex] ?? {})
 			: bodyFieldValues;
 
-	const items = buildFieldItems(endpoint, paramValues, bodyValue, bodyEditMode, effectiveBodyFieldValues, paramArrayItems, currentParamArrayIndices, paramArrayRawMode);
+	const items = buildFieldItems(
+		endpoint,
+		paramValues,
+		bodyValue,
+		bodyEditMode,
+		effectiveBodyFieldValues,
+		paramArrayItems,
+		currentParamArrayIndices,
+		paramArrayRawMode,
+	);
 
 	return (
 		<Box
@@ -111,22 +120,27 @@ export function FieldList({
 			overflowY="hidden"
 		>
 			<Text bold dimColor>
-				Fields{bodyEditMode === 'form' ? ' (form)' : bodyEditMode === 'json' ? ' (json)' : ''}
+				Fields
+				{bodyEditMode === 'form'
+					? ' (form)'
+					: bodyEditMode === 'json'
+						? ' (json)'
+						: ''}
 			</Text>
 			{isArrayBody && bodyArrayItems && currentBodyItemIndex !== undefined && (
 				<Text bold color="magenta">
 					Item {currentBodyItemIndex + 1}/{bodyArrayItems.length}
 				</Text>
 			)}
-			{items.length === 0 && (
-				<Text dimColor>No editable fields</Text>
-			)}
+			{items.length === 0 && <Text dimColor>No editable fields</Text>}
 			{items.map((item, i) => {
 				const selected = i === selectedIndex;
 				const indicator = selected ? '▸ ' : '  ';
 				const isFileField = item.typeHint === 'file';
 				const valuePreview = isFileField
-					? (item.value ? path.basename(item.value) : '(no file)')
+					? item.value
+						? path.basename(item.value)
+						: '(no file)'
 					: item.value
 						? item.value.length > 20
 							? `${item.value.slice(0, 20)}…`
@@ -154,14 +168,27 @@ export function FieldList({
 							</Text>
 						)}
 						{item.required && <Text color="red">*</Text>}
-						<Text wrap="truncate" color={isFileField ? (item.value ? 'green' : 'yellow') : item.value ? 'green' : 'gray'}>
+						<Text
+							wrap="truncate"
+							color={
+								isFileField
+									? item.value
+										? 'green'
+										: 'yellow'
+									: item.value
+										? 'green'
+										: 'gray'
+							}
+						>
 							{valuePreview}
 						</Text>
-						{item.isArrayParam && item.arrayItemIndex !== undefined && item.arrayItemCount !== undefined && (
-							<Text color="magenta">
-								[{item.arrayItemIndex + 1}/{item.arrayItemCount}]
-							</Text>
-						)}
+						{item.isArrayParam &&
+							item.arrayItemIndex !== undefined &&
+							item.arrayItemCount !== undefined && (
+								<Text color="magenta">
+									[{item.arrayItemIndex + 1}/{item.arrayItemCount}]
+								</Text>
+							)}
 					</Box>
 				);
 			})}

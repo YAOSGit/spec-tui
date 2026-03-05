@@ -1,4 +1,11 @@
-export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'head';
+export type HttpMethod =
+	| 'get'
+	| 'post'
+	| 'put'
+	| 'patch'
+	| 'delete'
+	| 'options'
+	| 'head';
 
 export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie';
 

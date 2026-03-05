@@ -5,6 +5,7 @@ import { ConfigScreen } from '../components/ConfigScreen/index.js';
 import { EndpointDetail } from '../components/EndpointDetail/index.js';
 import { EndpointNavigator } from '../components/EndpointNavigator/index.js';
 import { FakerPicker } from '../components/FakerPicker/index.js';
+import type { ContextHint } from '../components/Footer/Footer.types.js';
 import { Footer } from '../components/Footer/index.js';
 import { HelpMenu } from '../components/HelpMenu/index.js';
 import { NavigatorSidePanel } from '../components/NavigatorSidePanel/index.js';
@@ -14,7 +15,6 @@ import { useNavigation } from '../providers/NavigationProvider/index.js';
 import { useRequestConfig } from '../providers/RequestConfigProvider/index.js';
 import { useSpec } from '../providers/SpecProvider/index.js';
 import { useUI } from '../providers/UIStateProvider/index.js';
-import type { ContextHint } from '../components/Footer/Footer.types.js';
 import type { ResponseData } from '../types/ResponseData/index.js';
 import {
 	buildMultipartBody,
@@ -84,11 +84,16 @@ export function AppContent() {
 				const param = endpoint.parameters[idx];
 				if (param) {
 					if (param.schema?.type === 'array') {
-						const itemSchema = param.schema.items as Record<string, unknown> | undefined;
+						const itemSchema = param.schema.items as
+							| Record<string, unknown>
+							| undefined;
 						const value = generateValue(category, itemSchema);
 						if (nav.paramArrayRawMode[param.name]) {
 							const existing = nav.paramValues[param.name] ?? '';
-							nav.updateParamValue(param.name, existing ? `${existing}, ${value}` : value);
+							nav.updateParamValue(
+								param.name,
+								existing ? `${existing}, ${value}` : value,
+							);
 						} else {
 							nav.updateParamArrayItem(param.name, value);
 						}
@@ -143,7 +148,8 @@ export function AppContent() {
 	);
 
 	useInput((input, key) => {
-		if (ui.showFakerPicker || ui.saveMode || nav.activePane === 'config') return;
+		if (ui.showFakerPicker || ui.saveMode || nav.activePane === 'config')
+			return;
 
 		if (
 			input === 's' &&
@@ -162,9 +168,13 @@ export function AppContent() {
 				if (param.schema?.type === 'array') {
 					const isRaw = nav.paramArrayRawMode[param.name] ?? false;
 					const items = isRaw
-						? (nav.paramValues[param.name] ?? '').split(',').map((s) => s.trim()).filter((s) => s !== '')
+						? (nav.paramValues[param.name] ?? '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter((s) => s !== '')
 						: (nav.paramArrayItems[param.name] ?? ['']).filter((s) => s !== '');
-					if (param.location === 'path') pathParams[param.name] = items.join(',');
+					if (param.location === 'path')
+						pathParams[param.name] = items.join(',');
 					if (param.location === 'query' && items.length > 0) {
 						queryParams[param.name] = items;
 					}
@@ -214,8 +224,14 @@ export function AppContent() {
 			}
 
 			const mergedHeaders = { ...headers, ...extraHeaders };
-			const resolvedUrl = buildUrl(baseUrl, endpoint.path, pathParams, queryParams);
-			const isFormData = typeof body === 'object' && body !== null && 'getHeaders' in body;
+			const resolvedUrl = buildUrl(
+				baseUrl,
+				endpoint.path,
+				pathParams,
+				queryParams,
+			);
+			const isFormData =
+				typeof body === 'object' && body !== null && 'getHeaders' in body;
 			setSentRequest({
 				method: endpoint.method.toUpperCase(),
 				url: resolvedUrl,
@@ -324,7 +340,12 @@ export function AppContent() {
 	if (nav.activePane === 'config') {
 		return (
 			<Box flexDirection="column" borderStyle="round" borderColor="blue">
-				<StatusBar specTitle={specTitle} activePane={nav.activePane} selectedEndpoint={nav.selectedEndpoint} activeView={nav.activeView} />
+				<StatusBar
+					specTitle={specTitle}
+					activePane={nav.activePane}
+					selectedEndpoint={nav.selectedEndpoint}
+					activeView={nav.activeView}
+				/>
 				<ConfigScreen
 					headers={globalHeaders}
 					onAddHeader={addHeader}
@@ -344,7 +365,12 @@ export function AppContent() {
 	if (nav.activePane === 'detail' && nav.selectedEndpoint) {
 		return (
 			<Box flexDirection="column" borderStyle="round" borderColor="blue">
-				<StatusBar specTitle={specTitle} activePane={nav.activePane} selectedEndpoint={nav.selectedEndpoint} activeView={nav.activeView} />
+				<StatusBar
+					specTitle={specTitle}
+					activePane={nav.activePane}
+					selectedEndpoint={nav.selectedEndpoint}
+					activeView={nav.activeView}
+				/>
 				<EndpointDetail
 					endpoint={nav.selectedEndpoint}
 					paramValues={nav.paramValues}
@@ -361,7 +387,11 @@ export function AppContent() {
 					bodyEditMode={nav.bodyEditMode}
 					bodyFieldValues={nav.bodyFieldValues}
 					onBodyFieldChange={nav.updateBodyFieldValue}
-					isArrayBody={nav.selectedEndpoint.requestBody ? isArrayBody(nav.selectedEndpoint.requestBody) : false}
+					isArrayBody={
+						nav.selectedEndpoint.requestBody
+							? isArrayBody(nav.selectedEndpoint.requestBody)
+							: false
+					}
 					bodyArrayItems={nav.bodyArrayItems}
 					currentBodyItemIndex={nav.currentBodyItemIndex}
 					onBodyArrayFieldChange={nav.updateBodyArrayItemField}
@@ -373,7 +403,10 @@ export function AppContent() {
 					fieldEditorOverride={nav.fieldEditorOverride}
 					saveMode={ui.saveMode}
 					onSave={handleSaveResponse}
-					onCancelSave={() => { ui.setSaveMode(false); setSaveError(null); }}
+					onCancelSave={() => {
+						ui.setSaveMode(false);
+						setSaveError(null);
+					}}
 					saveError={saveError}
 				/>
 				<Footer commands={visibleCommands} contextHints={contextHints} />
@@ -384,12 +417,17 @@ export function AppContent() {
 	// Navigator view — main screen with side panel
 	return (
 		<Box flexDirection="column" borderStyle="round" borderColor="blue">
-			<StatusBar specTitle={specTitle} activePane={nav.activePane} selectedEndpoint={nav.selectedEndpoint} activeView={nav.activeView} />
+			<StatusBar
+				specTitle={specTitle}
+				activePane={nav.activePane}
+				selectedEndpoint={nav.selectedEndpoint}
+				activeView={nav.activeView}
+			/>
 			<Box>
 				<EndpointNavigator
 					endpoints={endpoints}
 					selectedIndex={nav.selectedIndex}
-		height={contentHeight}
+					height={contentHeight}
 				/>
 				<NavigatorSidePanel
 					baseUrl={baseUrl}

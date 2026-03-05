@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import {
-	DEFAULT_AUTH_CONFIG,
 	type AuthConfig,
+	DEFAULT_AUTH_CONFIG,
 } from '../../types/AuthConfig/index.js';
 
 export const useRequestConfigState = () => {

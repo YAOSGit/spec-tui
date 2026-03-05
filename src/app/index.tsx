@@ -17,11 +17,7 @@ export default function App({ specSource, baseUrl }: AppProps) {
 	}, [exit]);
 
 	return (
-		<AppProviders
-			specSource={specSource}
-			baseUrl={baseUrl}
-			onQuit={handleQuit}
-		>
+		<AppProviders specSource={specSource} baseUrl={baseUrl} onQuit={handleQuit}>
 			<AppContent />
 		</AppProviders>
 	);

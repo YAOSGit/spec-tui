@@ -1,9 +1,7 @@
 import type { AuthConfig } from '../../types/AuthConfig/index.js';
 import type { EndpointParameter } from '../../types/Endpoint/index.js';
 
-export function resolveAuthHeaders(
-	config: AuthConfig,
-): Record<string, string> {
+export function resolveAuthHeaders(config: AuthConfig): Record<string, string> {
 	switch (config.type) {
 		case 'bearer':
 			if (config.bearer?.token) {

@@ -24,12 +24,17 @@ vi.mock('../../utils/faker/index.js', () => ({
 vi.mock('../../utils/bodySchema/index.js', () => ({
 	extractBodySchemaFields: vi.fn((rb: Record<string, unknown>) => {
 		// Return a simple field list that tests can control via requestBody.properties
-		const props = rb.properties as Record<string, Record<string, unknown>> | undefined;
+		const props = rb.properties as
+			| Record<string, Record<string, unknown>>
+			| undefined;
 		if (!props) {
 			// For array bodies, look inside items
 			const items = rb.items as Record<string, unknown> | undefined;
 			if (items?.properties) {
-				const itemProps = items.properties as Record<string, Record<string, unknown>>;
+				const itemProps = items.properties as Record<
+					string,
+					Record<string, unknown>
+				>;
 				return Object.entries(itemProps).map(([name, s]) => ({
 					name,
 					type: (s.format === 'binary' ? 'file' : s.type) ?? 'string',
@@ -295,21 +300,33 @@ describe('nextFieldCommand', () => {
 	describe('isEnabled', () => {
 		it('returns true when on detail pane, request view, not editing', () => {
 			const p = makeMockProviders({
-				navigation: { activePane: 'detail', activeView: 'request', isEditing: false },
+				navigation: {
+					activePane: 'detail',
+					activeView: 'request',
+					isEditing: false,
+				},
 			});
 			expect(nextFieldCommand.isEnabled(p)).toBe(true);
 		});
 
 		it('returns false when editing', () => {
 			const p = makeMockProviders({
-				navigation: { activePane: 'detail', activeView: 'request', isEditing: true },
+				navigation: {
+					activePane: 'detail',
+					activeView: 'request',
+					isEditing: true,
+				},
 			});
 			expect(nextFieldCommand.isEnabled(p)).toBe(false);
 		});
 
 		it('returns false when on response view', () => {
 			const p = makeMockProviders({
-				navigation: { activePane: 'detail', activeView: 'response', isEditing: false },
+				navigation: {
+					activePane: 'detail',
+					activeView: 'response',
+					isEditing: false,
+				},
 			});
 			expect(nextFieldCommand.isEnabled(p)).toBe(false);
 		});
@@ -324,7 +341,11 @@ describe('nextFieldCommand', () => {
 				],
 			});
 			const p = makeMockProviders({
-				navigation: { selectedEndpoint: endpoint, selectedFieldIndex: 0, bodyEditMode: 'form' },
+				navigation: {
+					selectedEndpoint: endpoint,
+					selectedFieldIndex: 0,
+					bodyEditMode: 'form',
+				},
 			});
 			nextFieldCommand.execute(p);
 			expect(p.navigation.setSelectedFieldIndex).toHaveBeenCalledWith(1);
@@ -338,7 +359,11 @@ describe('nextFieldCommand', () => {
 				],
 			});
 			const p = makeMockProviders({
-				navigation: { selectedEndpoint: endpoint, selectedFieldIndex: 1, bodyEditMode: 'form' },
+				navigation: {
+					selectedEndpoint: endpoint,
+					selectedFieldIndex: 1,
+					bodyEditMode: 'form',
+				},
 			});
 			nextFieldCommand.execute(p);
 			expect(p.navigation.setSelectedFieldIndex).toHaveBeenCalledWith(0);
@@ -347,7 +372,11 @@ describe('nextFieldCommand', () => {
 		it('does nothing when there are no fields', () => {
 			const endpoint = makeEndpoint({ parameters: [] });
 			const p = makeMockProviders({
-				navigation: { selectedEndpoint: endpoint, selectedFieldIndex: 0, bodyEditMode: 'form' },
+				navigation: {
+					selectedEndpoint: endpoint,
+					selectedFieldIndex: 0,
+					bodyEditMode: 'form',
+				},
 			});
 			nextFieldCommand.execute(p);
 			expect(p.navigation.setSelectedFieldIndex).not.toHaveBeenCalled();
@@ -359,14 +388,22 @@ describe('prevFieldCommand', () => {
 	describe('isEnabled', () => {
 		it('returns true when on detail pane, request view, not editing', () => {
 			const p = makeMockProviders({
-				navigation: { activePane: 'detail', activeView: 'request', isEditing: false },
+				navigation: {
+					activePane: 'detail',
+					activeView: 'request',
+					isEditing: false,
+				},
 			});
 			expect(prevFieldCommand.isEnabled(p)).toBe(true);
 		});
 
 		it('returns false when not on detail pane', () => {
 			const p = makeMockProviders({
-				navigation: { activePane: 'navigator', activeView: 'request', isEditing: false },
+				navigation: {
+					activePane: 'navigator',
+					activeView: 'request',
+					isEditing: false,
+				},
 			});
 			expect(prevFieldCommand.isEnabled(p)).toBe(false);
 		});
@@ -382,7 +419,11 @@ describe('prevFieldCommand', () => {
 				],
 			});
 			const p = makeMockProviders({
-				navigation: { selectedEndpoint: endpoint, selectedFieldIndex: 2, bodyEditMode: 'form' },
+				navigation: {
+					selectedEndpoint: endpoint,
+					selectedFieldIndex: 2,
+					bodyEditMode: 'form',
+				},
 			});
 			prevFieldCommand.execute(p);
 			expect(p.navigation.setSelectedFieldIndex).toHaveBeenCalledWith(1);
@@ -397,7 +438,11 @@ describe('prevFieldCommand', () => {
 				],
 			});
 			const p = makeMockProviders({
-				navigation: { selectedEndpoint: endpoint, selectedFieldIndex: 0, bodyEditMode: 'form' },
+				navigation: {
+					selectedEndpoint: endpoint,
+					selectedFieldIndex: 0,
+					bodyEditMode: 'form',
+				},
 			});
 			prevFieldCommand.execute(p);
 			expect(p.navigation.setSelectedFieldIndex).toHaveBeenCalledWith(2);
@@ -406,7 +451,11 @@ describe('prevFieldCommand', () => {
 		it('does nothing when there are no fields', () => {
 			const endpoint = makeEndpoint({ parameters: [] });
 			const p = makeMockProviders({
-				navigation: { selectedEndpoint: endpoint, selectedFieldIndex: 0, bodyEditMode: 'form' },
+				navigation: {
+					selectedEndpoint: endpoint,
+					selectedFieldIndex: 0,
+					bodyEditMode: 'form',
+				},
 			});
 			prevFieldCommand.execute(p);
 			expect(p.navigation.setSelectedFieldIndex).not.toHaveBeenCalled();
@@ -577,7 +626,12 @@ describe('generateFieldCommand', () => {
 		it('generates value for a scalar parameter', () => {
 			const endpoint = makeEndpoint({
 				parameters: [
-					{ name: 'petId', location: 'path', required: true, schema: { type: 'integer' } },
+					{
+						name: 'petId',
+						location: 'path',
+						required: true,
+						schema: { type: 'integer' },
+					},
 				],
 			});
 			const p = makeMockProviders({
@@ -591,7 +645,10 @@ describe('generateFieldCommand', () => {
 
 			generateFieldCommand.execute(p);
 
-			expect(p.navigation.updateParamValue).toHaveBeenCalledWith('petId', 'mock-value');
+			expect(p.navigation.updateParamValue).toHaveBeenCalledWith(
+				'petId',
+				'mock-value',
+			);
 		});
 
 		it('generates value for an array parameter in non-raw mode', () => {
@@ -616,7 +673,10 @@ describe('generateFieldCommand', () => {
 
 			generateFieldCommand.execute(p);
 
-			expect(p.navigation.updateParamArrayItem).toHaveBeenCalledWith('tags', 'mock-value');
+			expect(p.navigation.updateParamArrayItem).toHaveBeenCalledWith(
+				'tags',
+				'mock-value',
+			);
 			expect(p.navigation.updateParamValue).not.toHaveBeenCalled();
 		});
 
@@ -643,7 +703,10 @@ describe('generateFieldCommand', () => {
 
 			generateFieldCommand.execute(p);
 
-			expect(p.navigation.updateParamValue).toHaveBeenCalledWith('tags', 'existing, mock-value');
+			expect(p.navigation.updateParamValue).toHaveBeenCalledWith(
+				'tags',
+				'existing, mock-value',
+			);
 		});
 
 		it('generates value for an array parameter in raw mode with empty existing value', () => {
@@ -669,7 +732,10 @@ describe('generateFieldCommand', () => {
 
 			generateFieldCommand.execute(p);
 
-			expect(p.navigation.updateParamValue).toHaveBeenCalledWith('tags', 'mock-value');
+			expect(p.navigation.updateParamValue).toHaveBeenCalledWith(
+				'tags',
+				'mock-value',
+			);
 		});
 
 		it('generates value for a body form field (non-array body)', () => {
@@ -693,7 +759,10 @@ describe('generateFieldCommand', () => {
 
 			generateFieldCommand.execute(p);
 
-			expect(p.navigation.updateBodyFieldValue).toHaveBeenCalledWith('username', 'mock-value');
+			expect(p.navigation.updateBodyFieldValue).toHaveBeenCalledWith(
+				'username',
+				'mock-value',
+			);
 		});
 
 		it('generates value for a body form field in an array body', () => {
@@ -720,7 +789,10 @@ describe('generateFieldCommand', () => {
 
 			generateFieldCommand.execute(p);
 
-			expect(p.navigation.updateBodyArrayItemField).toHaveBeenCalledWith('itemName', 'mock-value');
+			expect(p.navigation.updateBodyArrayItemField).toHaveBeenCalledWith(
+				'itemName',
+				'mock-value',
+			);
 		});
 
 		it('skips file-type body fields', () => {

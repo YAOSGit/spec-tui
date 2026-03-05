@@ -1,12 +1,18 @@
-import { useState } from 'react';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Box, Text, useInput } from 'ink';
 import TextInput from 'ink-text-input';
+import { useState } from 'react';
 import { schemaSummary } from '../../utils/schemaToType/index.js';
 import type { FieldEditorProps } from './FieldEditor.types.js';
 
-function BooleanToggle({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function BooleanToggle({
+	value,
+	onChange,
+}: {
+	value: string;
+	onChange: (v: string) => void;
+}) {
 	const options = ['', 'true', 'false'];
 	useInput((_input, key) => {
 		const idx = options.indexOf(value);
@@ -20,7 +26,11 @@ function BooleanToggle({ value, onChange }: { value: string; onChange: (v: strin
 	return (
 		<Box gap={2}>
 			{options.map((opt) => (
-				<Text key={opt || 'empty'} color={value === opt ? 'cyan' : undefined} bold={value === opt}>
+				<Text
+					key={opt || 'empty'}
+					color={value === opt ? 'cyan' : undefined}
+					bold={value === opt}
+				>
 					{value === opt ? '●' : '○'} {opt || '(empty)'}
 				</Text>
 			))}
@@ -28,9 +38,19 @@ function BooleanToggle({ value, onChange }: { value: string; onChange: (v: strin
 	);
 }
 
-function EnumSelector({ options: rawOptions, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
+function EnumSelector({
+	options: rawOptions,
+	value,
+	onChange,
+}: {
+	options: string[];
+	value: string;
+	onChange: (v: string) => void;
+}) {
 	const options = ['', ...rawOptions];
-	const [highlight, setHighlight] = useState(Math.max(0, options.indexOf(value)));
+	const [highlight, setHighlight] = useState(
+		Math.max(0, options.indexOf(value)),
+	);
 	useInput((_input, key) => {
 		if (key.downArrow || key.rightArrow) {
 			setHighlight((prev) => Math.min(prev + 1, options.length - 1));
@@ -45,7 +65,11 @@ function EnumSelector({ options: rawOptions, value, onChange }: { options: strin
 	return (
 		<Box flexDirection="column">
 			{options.map((opt, i) => (
-				<Text key={opt || 'empty'} color={i === highlight ? 'cyan' : undefined} bold={i === highlight}>
+				<Text
+					key={opt || 'empty'}
+					color={i === highlight ? 'cyan' : undefined}
+					bold={i === highlight}
+				>
 					{value === opt ? '●' : '○'} {opt || '(empty)'}
 				</Text>
 			))}
@@ -53,19 +77,29 @@ function EnumSelector({ options: rawOptions, value, onChange }: { options: strin
 	);
 }
 
-function FilePathInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function FilePathInput({
+	value,
+	onChange,
+}: {
+	value: string;
+	onChange: (v: string) => void;
+}) {
 	let status: { valid: boolean; label: string } = { valid: false, label: '' };
 	if (value) {
 		try {
 			const resolved = path.resolve(value);
 			const stat = fs.statSync(resolved);
 			const size = stat.size;
-			const label = size < 1024
-				? `${size} B`
-				: size < 1024 * 1024
-					? `${(size / 1024).toFixed(1)} KB`
-					: `${(size / (1024 * 1024)).toFixed(1)} MB`;
-			status = { valid: true, label: `✓ ${path.basename(resolved)} (${label})` };
+			const label =
+				size < 1024
+					? `${size} B`
+					: size < 1024 * 1024
+						? `${(size / 1024).toFixed(1)} KB`
+						: `${(size / (1024 * 1024)).toFixed(1)} MB`;
+			status = {
+				valid: true,
+				label: `✓ ${path.basename(resolved)} (${label})`,
+			};
 		} catch {
 			status = { valid: false, label: '✗ File not found' };
 		}
@@ -80,7 +114,15 @@ function FilePathInput({ value, onChange }: { value: string; onChange: (v: strin
 	);
 }
 
-function FileBrowser({ value, onChange, maxRows = 12 }: { value: string; onChange: (v: string) => void; maxRows?: number }) {
+function FileBrowser({
+	value,
+	onChange,
+	maxRows = 12,
+}: {
+	value: string;
+	onChange: (v: string) => void;
+	maxRows?: number;
+}) {
 	const initialDir = value ? path.dirname(path.resolve(value)) : process.cwd();
 	const [cwd, setCwd] = useState(initialDir);
 	const [highlightIdx, setHighlightIdx] = useState(0);
@@ -88,9 +130,16 @@ function FileBrowser({ value, onChange, maxRows = 12 }: { value: string; onChang
 	let entries: { name: string; isDir: boolean }[] = [];
 	try {
 		const dirents = fs.readdirSync(cwd, { withFileTypes: true });
-		const dirs = dirents.filter((d) => d.isDirectory()).map((d) => ({ name: d.name, isDir: true }));
-		const files = dirents.filter((d) => d.isFile()).map((d) => ({ name: d.name, isDir: false }));
-		entries = [...dirs.sort((a, b) => a.name.localeCompare(b.name)), ...files.sort((a, b) => a.name.localeCompare(b.name))];
+		const dirs = dirents
+			.filter((d) => d.isDirectory())
+			.map((d) => ({ name: d.name, isDir: true }));
+		const files = dirents
+			.filter((d) => d.isFile())
+			.map((d) => ({ name: d.name, isDir: false }));
+		entries = [
+			...dirs.sort((a, b) => a.name.localeCompare(b.name)),
+			...files.sort((a, b) => a.name.localeCompare(b.name)),
+		];
 	} catch {
 		entries = [];
 	}
@@ -130,7 +179,9 @@ function FileBrowser({ value, onChange, maxRows = 12 }: { value: string; onChang
 
 	return (
 		<Box flexDirection="column">
-			<Text dimColor wrap="truncate">{cwd}</Text>
+			<Text dimColor wrap="truncate">
+				{cwd}
+			</Text>
 			{visible.map((entry, vi) => {
 				const realIdx = start + vi;
 				const selected = realIdx === highlightIdx;
@@ -141,7 +192,9 @@ function FileBrowser({ value, onChange, maxRows = 12 }: { value: string; onChang
 						bold={selected}
 						wrap="truncate"
 					>
-						{selected ? '▸ ' : '  '}{entry.name}{entry.isDir ? '/' : ''}
+						{selected ? '▸ ' : '  '}
+						{entry.name}
+						{entry.isDir ? '/' : ''}
 					</Text>
 				);
 			})}
@@ -149,7 +202,13 @@ function FileBrowser({ value, onChange, maxRows = 12 }: { value: string; onChang
 	);
 }
 
-function NumberStepper({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function NumberStepper({
+	value,
+	onChange,
+}: {
+	value: string;
+	onChange: (v: string) => void;
+}) {
 	const num = Number.parseInt(value, 10) || 0;
 	useInput((_input, key) => {
 		if (key.upArrow) onChange(String(num + 1));
@@ -157,16 +216,19 @@ function NumberStepper({ value, onChange }: { value: string; onChange: (v: strin
 	});
 	return (
 		<Box gap={1}>
-			<Text color="cyan" bold>▲</Text>
+			<Text color="cyan" bold>
+				▲
+			</Text>
 			<Text bold>{String(num)}</Text>
-			<Text color="cyan" bold>▼</Text>
+			<Text color="cyan" bold>
+				▼
+			</Text>
 		</Box>
 	);
 }
 
 export function FieldEditor({
 	fieldName,
-	fieldKind,
 	value,
 	isEditing,
 	onChange,
@@ -184,7 +246,8 @@ export function FieldEditor({
 	fileInputMode,
 	useRawEditor,
 }: FieldEditorProps) {
-	const isFileField = param?.schema?.format === 'binary' || bodyField?.type === 'file';
+	const isFileField =
+		param?.schema?.format === 'binary' || bodyField?.type === 'file';
 	const isBooleanField =
 		param?.schema?.type === 'boolean' || bodyField?.type === 'boolean';
 	const isIntegerField =
@@ -218,30 +281,34 @@ export function FieldEditor({
 				<Text bold dimColor wrap="truncate">
 					{fieldName}
 				</Text>
-				{modeBadge && (
-					<Text color="yellow">[{modeBadge}]</Text>
-				)}
+				{modeBadge && <Text color="yellow">[{modeBadge}]</Text>}
 			</Box>
 
-			{isArrayBody && currentBodyItemIndex !== undefined && totalBodyItems !== undefined && (
-				<Text color="magenta">
-					Array item {currentBodyItemIndex + 1}/{totalBodyItems}
-				</Text>
-			)}
-			{isArrayParam && paramArrayItemIndex !== undefined && paramArrayItemCount !== undefined && (
-				<Text color="magenta">
-					Array item {paramArrayItemIndex + 1}/{paramArrayItemCount}
-				</Text>
-			)}
+			{isArrayBody &&
+				currentBodyItemIndex !== undefined &&
+				totalBodyItems !== undefined && (
+					<Text color="magenta">
+						Array item {currentBodyItemIndex + 1}/{totalBodyItems}
+					</Text>
+				)}
+			{isArrayParam &&
+				paramArrayItemIndex !== undefined &&
+				paramArrayItemCount !== undefined && (
+					<Text color="magenta">
+						Array item {paramArrayItemIndex + 1}/{paramArrayItemCount}
+					</Text>
+				)}
 
 			{/* Value row */}
 			<Box marginTop={1} flexDirection="column">
 				<Text>Value: </Text>
 				{isEditing ? (
 					isFileField ? (
-						fileInputMode === 'path'
-							? <FilePathInput value={value} onChange={onChange} />
-							: <FileBrowser value={value} onChange={onChange} />
+						fileInputMode === 'path' ? (
+							<FilePathInput value={value} onChange={onChange} />
+						) : (
+							<FileBrowser value={value} onChange={onChange} />
+						)
 					) : useRawEditor ? (
 						<TextInput value={value} onChange={onChange} />
 					) : isBooleanField ? (
@@ -249,13 +316,17 @@ export function FieldEditor({
 					) : isIntegerField ? (
 						<NumberStepper value={value} onChange={onChange} />
 					) : hasEnumValues ? (
-						<EnumSelector options={enumValues} value={value} onChange={onChange} />
+						<EnumSelector
+							options={enumValues}
+							value={value}
+							onChange={onChange}
+						/>
 					) : (
 						<TextInput value={value} onChange={onChange} />
 					)
 				) : (
 					<Text wrap="truncate" color={value ? 'green' : 'gray'}>
-						{isFileField && value ? path.basename(value) : (value || '(empty)')}
+						{isFileField && value ? path.basename(value) : value || '(empty)'}
 					</Text>
 				)}
 			</Box>
@@ -271,9 +342,7 @@ export function FieldEditor({
 								: ''}
 						</Text>
 					)}
-					<Text dimColor>
-						Required: {param.required ? 'yes' : 'no'}
-					</Text>
+					<Text dimColor>Required: {param.required ? 'yes' : 'no'}</Text>
 					<Text dimColor>Location: {param.location}</Text>
 					{param.description && (
 						<Text wrap="truncate" dimColor>
@@ -286,12 +355,8 @@ export function FieldEditor({
 			{/* Metadata for bodyField */}
 			{bodyField && (
 				<Box flexDirection="column" marginTop={1}>
-					<Text dimColor>
-						Type: {bodyField.type}
-					</Text>
-					<Text dimColor>
-						Required: {bodyField.required ? 'yes' : 'no'}
-					</Text>
+					<Text dimColor>Type: {bodyField.type}</Text>
+					<Text dimColor>Required: {bodyField.required ? 'yes' : 'no'}</Text>
 					{bodyField.description && (
 						<Text wrap="truncate" dimColor>
 							Description: {bodyField.description}
@@ -308,7 +373,6 @@ export function FieldEditor({
 					</Text>
 				</Box>
 			)}
-
 		</Box>
 	);
 }

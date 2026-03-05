@@ -154,18 +154,12 @@ describe('isKeyMatch', () => {
 
 	describe('OR semantics (any binding matches)', () => {
 		it('returns true when the first binding in the array matches', () => {
-			const bindings: KeyBinding[] = [
-				{ textKey: 'a' },
-				{ textKey: 'b' },
-			];
+			const bindings: KeyBinding[] = [{ textKey: 'a' }, { textKey: 'b' }];
 			expect(isKeyMatch(makeKey(), 'a', bindings)).toBe(true);
 		});
 
 		it('returns true when the second binding in the array matches', () => {
-			const bindings: KeyBinding[] = [
-				{ textKey: 'a' },
-				{ textKey: 'b' },
-			];
+			const bindings: KeyBinding[] = [{ textKey: 'a' }, { textKey: 'b' }];
 			expect(isKeyMatch(makeKey(), 'b', bindings)).toBe(true);
 		});
 

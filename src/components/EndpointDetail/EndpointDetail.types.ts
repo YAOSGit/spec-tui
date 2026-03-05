@@ -1,5 +1,8 @@
 import type { SentRequest } from '../../app/app.js';
-import type { BodyEditMode, DetailView } from '../../providers/NavigationProvider/NavigationProvider.types.js';
+import type {
+	BodyEditMode,
+	DetailView,
+} from '../../providers/NavigationProvider/NavigationProvider.types.js';
 import type { Endpoint } from '../../types/Endpoint/index.js';
 import type { ResponseData } from '../../types/ResponseData/index.js';
 

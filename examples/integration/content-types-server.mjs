@@ -192,52 +192,52 @@ const DOWNLOAD_IMAGE_BODY = createPng(16, 16, 0, 188, 212);
 const BINARY_BODY = createPng(16, 16, 220, 38, 38);
 
 const routes = {
-	'/data/json': (req, res) => {
+	'/data/json': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'application/json' });
 		res.end(JSON_BODY);
 	},
-	'/data/xml': (req, res) => {
+	'/data/xml': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'application/xml' });
 		res.end(XML_BODY);
 	},
-	'/data/html': (req, res) => {
+	'/data/html': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'text/html' });
 		res.end(HTML_BODY);
 	},
-	'/data/csv': (req, res) => {
+	'/data/csv': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'text/csv' });
 		res.end(CSV_BODY);
 	},
-	'/data/javascript': (req, res) => {
+	'/data/javascript': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'application/javascript' });
 		res.end(JS_BODY);
 	},
-	'/data/css': (req, res) => {
+	'/data/css': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'text/css' });
 		res.end(CSS_BODY);
 	},
-	'/save/report': (req, res) => {
+	'/save/report': (_req, res) => {
 		res.writeHead(200, {
 			'Content-Type': 'text/plain',
 			'Content-Disposition': 'attachment; filename="report.txt"',
 		});
 		res.end(DOWNLOAD_REPORT_BODY);
 	},
-	'/save/export': (req, res) => {
+	'/save/export': (_req, res) => {
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
 			'Content-Disposition': 'attachment; filename="users-export.json"',
 		});
 		res.end(DOWNLOAD_JSON_BODY);
 	},
-	'/save/image': (req, res) => {
+	'/save/image': (_req, res) => {
 		res.writeHead(200, {
 			'Content-Type': 'image/png',
 			'Content-Disposition': 'attachment; filename="thumbnail.png"',
 		});
 		res.end(DOWNLOAD_IMAGE_BODY);
 	},
-	'/data/binary': (req, res) => {
+	'/data/binary': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'application/octet-stream' });
 		res.end(BINARY_BODY);
 	},
@@ -255,11 +255,11 @@ const routes = {
 			res.end(JSON_BODY);
 		}
 	},
-	'/upload/avatar': (req, res) => {
+	'/upload/avatar': (_req, res) => {
 		res.writeHead(200, { 'Content-Type': 'application/json' });
 		res.end(JSON.stringify({ url: 'https://cdn.example.com/avatars/1.png' }));
 	},
-	'/upload/documents': (req, res) => {
+	'/upload/documents': (_req, res) => {
 		res.writeHead(201, { 'Content-Type': 'application/json' });
 		res.end(JSON.stringify({ id: 'doc-42', status: 'uploaded' }));
 	},
@@ -290,12 +290,20 @@ server.listen(4567, () => {
 	console.log('  GET  /data/multi-format  → json/xml/csv via ?format=');
 	console.log('');
 	console.log('  Save / download (press w on response to save):');
-	console.log('  GET  /save/report        → text/plain (attachment: report.txt)');
-	console.log('  GET  /save/export        → application/json (attachment: users-export.json)');
-	console.log('  GET  /save/image         → image/png (attachment: thumbnail.png)');
+	console.log(
+		'  GET  /save/report        → text/plain (attachment: report.txt)',
+	);
+	console.log(
+		'  GET  /save/export        → application/json (attachment: users-export.json)',
+	);
+	console.log(
+		'  GET  /save/image         → image/png (attachment: thumbnail.png)',
+	);
 	console.log('');
 	console.log('  POST /upload/avatar      → multipart/form-data (file field)');
-	console.log('  POST /upload/documents   → multipart/form-data (2 file fields)');
+	console.log(
+		'  POST /upload/documents   → multipart/form-data (2 file fields)',
+	);
 	console.log('');
 	console.log('Press Ctrl+C to stop.');
 });

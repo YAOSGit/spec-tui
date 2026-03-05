@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
-import { METHOD_COLORS } from '../EndpointNavigator/EndpointNavigator.consts.js';
 import { statusColor } from '../../utils/statusColor/index.js';
+import { METHOD_COLORS } from '../EndpointNavigator/EndpointNavigator.consts.js';
 import type { NavigatorSidePanelProps } from './NavigatorSidePanel.types.js';
 
 export function NavigatorSidePanel({
@@ -34,7 +34,9 @@ export function NavigatorSidePanel({
 				</Text>
 				<Text wrap="truncate">
 					<Text dimColor>Security: </Text>
-					<Text>{schemeNames.length > 0 ? schemeNames.join(', ') : '(none)'}</Text>
+					<Text>
+						{schemeNames.length > 0 ? schemeNames.join(', ') : '(none)'}
+					</Text>
 				</Text>
 				<Text>
 					<Text dimColor>Endpoints: </Text>
@@ -71,7 +73,9 @@ export function NavigatorSidePanel({
 						{(() => {
 							const allTypes = [
 								...selectedEndpoint.contentTypes.requestContentTypes,
-								...Object.values(selectedEndpoint.contentTypes.responseContentTypes).flat(),
+								...Object.values(
+									selectedEndpoint.contentTypes.responseContentTypes,
+								).flat(),
 							];
 							const unique = [...new Set(allTypes)];
 							return unique.length > 0 ? (

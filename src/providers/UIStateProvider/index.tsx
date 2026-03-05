@@ -13,20 +13,7 @@ export const UIStateProvider: React.FC<UIStateProviderProps> = ({
 }) => {
 	const state = useUIState();
 
-	const value: UIStateContextValue = useMemo(
-		() => state,
-		[
-			state.showHelp,
-			state.showFakerPicker,
-			state.saveMode,
-			state.setSaveMode,
-			state.openHelp,
-			state.closeHelp,
-			state.toggleHelp,
-			state.openFakerPicker,
-			state.closeFakerPicker,
-		],
-	);
+	const value: UIStateContextValue = useMemo(() => state, [state]);
 
 	return (
 		<UIStateContext.Provider value={value}>{children}</UIStateContext.Provider>

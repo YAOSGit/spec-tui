@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
 import chalk from 'chalk';
+import { describe, expect, it } from 'vitest';
 import {
-	renderXml,
-	renderCsv,
-	renderJavascript,
 	renderCss,
+	renderCsv,
 	renderHexDump,
+	renderJavascript,
 	renderResponseBody,
+	renderXml,
 } from './index.js';
 
 // Force chalk colors for consistent test output
@@ -24,7 +24,9 @@ describe('renderXml', () => {
 		const xml = '<root><br/></root>';
 		const lines = renderXml(xml);
 		// self-closing br should not increase indent for closing root
-		const closingRoot = lines.find((l) => l.includes('root') && l.includes('</'));
+		const closingRoot = lines.find(
+			(l) => l.includes('root') && l.includes('</'),
+		);
 		expect(closingRoot).toBeDefined();
 	});
 

@@ -18,6 +18,7 @@ function buildDisplayRows(endpoints: Endpoint[]): DisplayRow[] {
 	let lastGroup = '';
 
 	for (let i = 0; i < endpoints.length; i++) {
+		// biome-ignore lint/style/noNonNullAssertion: index is within array bounds
 		const ep = endpoints[i]!;
 		const group = getGroupKey(ep.path);
 		if (group !== lastGroup) {
@@ -65,7 +66,7 @@ export function EndpointNavigator({
 			<Box paddingX={1}>
 				<Text bold>Endpoints</Text>
 			</Box>
-			{visible.map((row, vi) => {
+			{visible.map((row, _vi) => {
 				if (row.type === 'group') {
 					return (
 						<Box key={`group-${row.label}`} paddingX={1}>
@@ -80,7 +81,9 @@ export function EndpointNavigator({
 				const methodColor = METHOD_COLORS[row.endpoint.method] ?? 'white';
 				const nonJsonTypes = [
 					...row.endpoint.contentTypes.requestContentTypes,
-					...Object.values(row.endpoint.contentTypes.responseContentTypes).flat(),
+					...Object.values(
+						row.endpoint.contentTypes.responseContentTypes,
+					).flat(),
 				].filter((ct) => !ct.includes('json'));
 				const uniqueBadges = [...new Set(nonJsonTypes)]
 					.map((ct) => ct.replace(/^(application|text)\//, '').toUpperCase())
@@ -97,7 +100,8 @@ export function EndpointNavigator({
 							</Text>
 							{uniqueBadges.map((badge) => (
 								<Text key={badge} dimColor>
-									{' '}[{badge}]
+									{' '}
+									[{badge}]
 								</Text>
 							))}
 						</Text>

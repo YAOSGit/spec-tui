@@ -152,9 +152,7 @@ export function ConfigScreen({
 				}
 			}
 			if (key.tab) {
-				setHeaderEditField((prev) =>
-					prev === 'key' ? 'value' : 'key',
-				);
+				setHeaderEditField((prev) => (prev === 'key' ? 'value' : 'key'));
 				return;
 			}
 			return;
@@ -169,8 +167,7 @@ export function ConfigScreen({
 			}
 			if (key.tab) {
 				const maxFields =
-					activePreset?.type === 'basic' ||
-					activePreset?.type === 'apiKey'
+					activePreset?.type === 'basic' || activePreset?.type === 'apiKey'
 						? 2
 						: 1;
 				setAuthField((prev) => (prev + 1) % maxFields);
@@ -267,9 +264,7 @@ export function ConfigScreen({
 							>
 								{section === 'auth' && i === selectedPreset ? '>' : ' '}
 							</Text>
-							<Text bold={authConfig.type === preset.type}>
-								{preset.label}
-							</Text>
+							<Text bold={authConfig.type === preset.type}>{preset.label}</Text>
 							{preset.fromSpec && <Text color="yellow">★</Text>}
 							{authConfig.type === preset.type && (
 								<Text color="green">(active)</Text>
@@ -316,10 +311,7 @@ export function ConfigScreen({
 									<Box gap={1}>
 										<Text>Name: </Text>
 										{authField === 0 ? (
-											<TextInput
-												value={apiKeyName}
-												onChange={setApiKeyName}
-											/>
+											<TextInput value={apiKeyName} onChange={setApiKeyName} />
 										) : (
 											<Text>{apiKeyName || '(empty)'}</Text>
 										)}
@@ -357,9 +349,7 @@ export function ConfigScreen({
 						<Box key={hKey} gap={1}>
 							<Text
 								color={
-									section === 'headers' && i === headerRow
-										? 'cyan'
-										: 'white'
+									section === 'headers' && i === headerRow ? 'cyan' : 'white'
 								}
 							>
 								{section === 'headers' && i === headerRow ? '>' : ' '}
@@ -394,7 +384,6 @@ export function ConfigScreen({
 					)}
 				</Box>
 			</Box>
-
 		</Box>
 	);
 }

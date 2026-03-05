@@ -1,16 +1,15 @@
 import { Box, Text } from 'ink';
-import { METHOD_COLORS } from '../EndpointNavigator/EndpointNavigator.consts.js';
+import { extractBodySchemaFields } from '../../utils/bodySchema/index.js';
 import {
 	detectContentFormat,
-	formatBadgeLabel,
 	formatBadgeColor,
+	formatBadgeLabel,
 } from '../../utils/contentType/index.js';
-import { buildFieldItems } from '../FieldList/index.js';
+import { METHOD_COLORS } from '../EndpointNavigator/EndpointNavigator.consts.js';
 import { FieldEditor } from '../FieldEditor/index.js';
-import { FieldList } from '../FieldList/index.js';
+import { buildFieldItems, FieldList } from '../FieldList/index.js';
 import { RequestPreview } from '../RequestPreview/index.js';
 import { ResponseView } from '../ResponseView/index.js';
-import { extractBodySchemaFields } from '../../utils/bodySchema/index.js';
 import type { EndpointDetailProps } from './EndpointDetail.types.js';
 
 export function EndpointDetail({
@@ -48,10 +47,19 @@ export function EndpointDetail({
 
 	const effectiveBodyFieldValues =
 		isArrayBody && bodyArrayItems && currentBodyItemIndex !== undefined
-			? bodyArrayItems[currentBodyItemIndex] ?? {}
+			? (bodyArrayItems[currentBodyItemIndex] ?? {})
 			: bodyFieldValues;
 
-	const items = buildFieldItems(endpoint, paramValues, bodyValue, bodyEditMode, effectiveBodyFieldValues, paramArrayItems, currentParamArrayIndices, paramArrayRawMode);
+	const items = buildFieldItems(
+		endpoint,
+		paramValues,
+		bodyValue,
+		bodyEditMode,
+		effectiveBodyFieldValues,
+		paramArrayItems,
+		currentParamArrayIndices,
+		paramArrayRawMode,
+	);
 	const selectedItem = items[selectedFieldIndex];
 
 	const handleValueChange = (value: string) => {
@@ -87,16 +95,17 @@ export function EndpointDetail({
 				)
 			: undefined;
 
-	const selectedFileInputMode = selectedItem?.kind === 'bodyField'
-		? fileInputMode?.[selectedItem.label]
-		: undefined;
+	const selectedFileInputMode =
+		selectedItem?.kind === 'bodyField'
+			? fileInputMode?.[selectedItem.label]
+			: undefined;
 	const selectedFieldKey = selectedItem
 		? selectedItem.kind === 'param'
 			? `param:${selectedItem.label}`
 			: `body:${selectedItem.label}`
 		: undefined;
 	const selectedUseRawEditor = selectedFieldKey
-		? fieldEditorOverride?.[selectedFieldKey] ?? false
+		? (fieldEditorOverride?.[selectedFieldKey] ?? false)
 		: false;
 
 	// Header (1) + view indicator with paddingY (3) = 4 chrome rows
@@ -109,8 +118,14 @@ export function EndpointDetail({
 				<Text color={methodColor} bold>
 					{endpoint.method.toUpperCase()}
 				</Text>
-				<Text bold wrap="truncate">{endpoint.path}</Text>
-				{endpoint.summary && <Text wrap="truncate" dimColor>— {endpoint.summary}</Text>}
+				<Text bold wrap="truncate">
+					{endpoint.path}
+				</Text>
+				{endpoint.summary && (
+					<Text wrap="truncate" dimColor>
+						— {endpoint.summary}
+					</Text>
+				)}
 				{Object.values(endpoint.contentTypes.responseContentTypes)
 					.flat()
 					.filter((ct) => !ct.includes('json'))
@@ -204,7 +219,9 @@ export function EndpointDetail({
 								justifyContent="center"
 							>
 								<Text dimColor>No fields to edit</Text>
-								<Text dimColor>Select an endpoint with editable parameters</Text>
+								<Text dimColor>
+									Select an endpoint with editable parameters
+								</Text>
 							</Box>
 						)}
 					</Box>
@@ -212,10 +229,22 @@ export function EndpointDetail({
 			) : (
 				<Box height={panelHeight} width="100%">
 					<Box width="40%">
-						<RequestPreview request={sentRequest} loading={loading} height={panelHeight} />
+						<RequestPreview
+							request={sentRequest}
+							loading={loading}
+							height={panelHeight}
+						/>
 					</Box>
 					<Box width="60%">
-						<ResponseView response={response} loading={loading} height={panelHeight} saveMode={saveMode} onSave={onSave} onCancelSave={onCancelSave} saveError={saveError} />
+						<ResponseView
+							response={response}
+							loading={loading}
+							height={panelHeight}
+							saveMode={saveMode}
+							onSave={onSave}
+							onCancelSave={onCancelSave}
+							saveError={saveError}
+						/>
 					</Box>
 				</Box>
 			)}

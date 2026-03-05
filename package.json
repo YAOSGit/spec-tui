@@ -1,6 +1,6 @@
 {
 	"name": "@yaos-git/spec-tui",
-	"version": "1.0.0",
+	"version": "126.0.0",
 	"description": "Keyboard-driven TUI for exploring and testing OpenAPI specifications",
 	"main": "dist/cli.js",
 	"bin": {

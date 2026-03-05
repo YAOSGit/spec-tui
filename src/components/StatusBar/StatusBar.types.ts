@@ -1,4 +1,7 @@
-import type { Pane, DetailView } from '../../providers/NavigationProvider/NavigationProvider.types.js';
+import type {
+	DetailView,
+	Pane,
+} from '../../providers/NavigationProvider/NavigationProvider.types.js';
 import type { Endpoint } from '../../types/Endpoint/index.js';
 
 export interface StatusBarProps {

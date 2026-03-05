@@ -1,15 +1,15 @@
 import type { Command } from '../../types/Command/index.js';
 import {
-	generateObjectFromSchema,
-	generateValue,
-	guessCategory,
-} from '../../utils/faker/index.js';
-import {
 	extractBodySchemaFields,
 	isArrayBody,
 	serializeBodyArrayFields,
 	serializeBodyFields,
 } from '../../utils/bodySchema/index.js';
+import {
+	generateObjectFromSchema,
+	generateValue,
+	guessCategory,
+} from '../../utils/faker/index.js';
 
 type ArrayContext =
 	| { kind: 'bodyArray' }
@@ -18,7 +18,10 @@ type ArrayContext =
 
 function getSelectedArrayContext(p: {
 	navigation: {
-		selectedEndpoint: { parameters: { name: string; schema?: Record<string, unknown> }[]; requestBody?: Record<string, unknown> } | null;
+		selectedEndpoint: {
+			parameters: { name: string; schema?: Record<string, unknown> }[];
+			requestBody?: Record<string, unknown>;
+		} | null;
 		selectedFieldIndex: number;
 		bodyEditMode: string;
 		paramArrayItems: Record<string, string[]>;
@@ -33,7 +36,10 @@ function getSelectedArrayContext(p: {
 
 	if (idx < paramCount) {
 		const param = endpoint.parameters[idx];
-		if (param?.schema?.type === 'array' && !p.navigation.paramArrayRawMode[param.name]) {
+		if (
+			param?.schema?.type === 'array' &&
+			!p.navigation.paramArrayRawMode[param.name]
+		) {
 			const items = p.navigation.paramArrayItems[param.name] ?? [''];
 			const index = p.navigation.currentParamArrayIndices[param.name] ?? 0;
 			return { kind: 'paramArray', paramName: param.name, items, index };
@@ -50,7 +56,10 @@ function getSelectedArrayContext(p: {
 
 function getTotalFields(p: {
 	navigation: {
-		selectedEndpoint: { parameters: unknown[]; requestBody?: Record<string, unknown> } | null;
+		selectedEndpoint: {
+			parameters: unknown[];
+			requestBody?: Record<string, unknown>;
+		} | null;
 		bodyEditMode: string;
 	};
 }): number {
@@ -225,17 +234,27 @@ export const generateFieldCommand: Command = {
 			const param = endpoint.parameters[idx];
 			if (!param) return;
 			if (param.schema?.type === 'array') {
-				const itemSchema = (param.schema.items as Record<string, unknown> | undefined) ?? {};
-				const value = generateValue(guessCategory(param.name, itemSchema), itemSchema);
+				const itemSchema =
+					(param.schema.items as Record<string, unknown> | undefined) ?? {};
+				const value = generateValue(
+					guessCategory(param.name, itemSchema),
+					itemSchema,
+				);
 				if (p.navigation.paramArrayRawMode[param.name]) {
 					// Raw mode: append comma-separated to paramValues
 					const existing = p.navigation.paramValues[param.name] ?? '';
-					p.navigation.updateParamValue(param.name, existing ? `${existing}, ${value}` : value);
+					p.navigation.updateParamValue(
+						param.name,
+						existing ? `${existing}, ${value}` : value,
+					);
 				} else {
 					p.navigation.updateParamArrayItem(param.name, value);
 				}
 			} else {
-				const value = generateValue(guessCategory(param.name, param.schema), param.schema);
+				const value = generateValue(
+					guessCategory(param.name, param.schema),
+					param.schema,
+				);
 				p.navigation.updateParamValue(param.name, value);
 			}
 		} else if (endpoint.requestBody) {
@@ -279,7 +298,15 @@ export const generateFieldPickerCommand: Command = {
 	},
 };
 
-function isSelectedParamArray(p: { navigation: { selectedEndpoint: { parameters: { name: string; schema?: Record<string, unknown> }[]; requestBody?: Record<string, unknown> } | null; selectedFieldIndex: number } }): string | null {
+function _isSelectedParamArray(p: {
+	navigation: {
+		selectedEndpoint: {
+			parameters: { name: string; schema?: Record<string, unknown> }[];
+			requestBody?: Record<string, unknown>;
+		} | null;
+		selectedFieldIndex: number;
+	};
+}): string | null {
 	const endpoint = p.navigation.selectedEndpoint;
 	if (!endpoint) return null;
 	const idx = p.navigation.selectedFieldIndex;
@@ -288,9 +315,19 @@ function isSelectedParamArray(p: { navigation: { selectedEndpoint: { parameters:
 	return param?.schema?.type === 'array' ? param.name : null;
 }
 
-function isSelectedBodyFileField(p: { navigation: { selectedEndpoint: { parameters: unknown[]; requestBody?: Record<string, unknown> } | null; selectedFieldIndex: number; bodyEditMode: string } }): string | null {
+function isSelectedBodyFileField(p: {
+	navigation: {
+		selectedEndpoint: {
+			parameters: unknown[];
+			requestBody?: Record<string, unknown>;
+		} | null;
+		selectedFieldIndex: number;
+		bodyEditMode: string;
+	};
+}): string | null {
 	const endpoint = p.navigation.selectedEndpoint;
-	if (!endpoint?.requestBody || p.navigation.bodyEditMode !== 'form') return null;
+	if (!endpoint?.requestBody || p.navigation.bodyEditMode !== 'form')
+		return null;
 	const idx = p.navigation.selectedFieldIndex - endpoint.parameters.length;
 	if (idx < 0) return null;
 	const fields = extractBodySchemaFields(endpoint.requestBody);
@@ -300,7 +337,10 @@ function isSelectedBodyFileField(p: { navigation: { selectedEndpoint: { paramete
 
 function getSelectedFieldType(p: {
 	navigation: {
-		selectedEndpoint: { parameters: { name: string; schema?: Record<string, unknown> }[]; requestBody?: Record<string, unknown> } | null;
+		selectedEndpoint: {
+			parameters: { name: string; schema?: Record<string, unknown> }[];
+			requestBody?: Record<string, unknown>;
+		} | null;
 		selectedFieldIndex: number;
 		bodyEditMode: string;
 		paramArrayRawMode: Record<string, boolean>;
@@ -367,7 +407,10 @@ export const toggleBodyEditModeCommand: Command = {
 			if (fields.length > 0) {
 				try {
 					if (arrayMode) {
-						const parsed = JSON.parse(p.navigation.bodyValue || '[]') as Record<string, unknown>[];
+						const parsed = JSON.parse(p.navigation.bodyValue || '[]') as Record<
+							string,
+							unknown
+						>[];
 						if (Array.isArray(parsed)) {
 							const items = parsed.map((item) => {
 								const vals: Record<string, string> = {};
@@ -384,7 +427,10 @@ export const toggleBodyEditModeCommand: Command = {
 							p.navigation.setCurrentBodyItemIndex(0);
 						}
 					} else {
-						const parsed = JSON.parse(p.navigation.bodyValue || '{}') as Record<string, unknown>;
+						const parsed = JSON.parse(p.navigation.bodyValue || '{}') as Record<
+							string,
+							unknown
+						>;
 						const newFieldValues: Record<string, string> = {};
 						for (const field of fields) {
 							const val = parsed[field.name];
@@ -449,7 +495,8 @@ export const removeArrayItemCommand: Command = {
 			p.navigation.activePane !== 'detail' ||
 			p.navigation.activeView !== 'request' ||
 			p.navigation.isEditing
-		) return false;
+		)
+			return false;
 		const ctx = getSelectedArrayContext(p);
 		if (!ctx) return false;
 		if (ctx.kind === 'bodyArray') return p.navigation.bodyArrayItems.length > 1;
@@ -485,7 +532,9 @@ export const prevArrayItemCommand: Command = {
 		if (!ctx) return;
 		if (ctx.kind === 'bodyArray') {
 			if (p.navigation.currentBodyItemIndex > 0) {
-				p.navigation.setCurrentBodyItemIndex(p.navigation.currentBodyItemIndex - 1);
+				p.navigation.setCurrentBodyItemIndex(
+					p.navigation.currentBodyItemIndex - 1,
+				);
 			}
 		} else {
 			if (ctx.index > 0) {
@@ -508,11 +557,15 @@ export const nextArrayItemCommand: Command = {
 			p.navigation.activePane !== 'detail' ||
 			p.navigation.activeView !== 'request' ||
 			p.navigation.isEditing
-		) return false;
+		)
+			return false;
 		const ctx = getSelectedArrayContext(p);
 		if (!ctx) return false;
 		if (ctx.kind === 'bodyArray') {
-			return p.navigation.currentBodyItemIndex < p.navigation.bodyArrayItems.length - 1;
+			return (
+				p.navigation.currentBodyItemIndex <
+				p.navigation.bodyArrayItems.length - 1
+			);
 		}
 		return ctx.index < ctx.items.length - 1;
 	},
@@ -520,7 +573,9 @@ export const nextArrayItemCommand: Command = {
 		const ctx = getSelectedArrayContext(p);
 		if (!ctx) return;
 		if (ctx.kind === 'bodyArray') {
-			p.navigation.setCurrentBodyItemIndex(p.navigation.currentBodyItemIndex + 1);
+			p.navigation.setCurrentBodyItemIndex(
+				p.navigation.currentBodyItemIndex + 1,
+			);
 		} else {
 			p.navigation.setParamArrayIndex(ctx.paramName, ctx.index + 1);
 		}
@@ -583,9 +638,11 @@ export const toggleFieldEditorModeCommand: Command = {
 			}
 			case 'boolean':
 			case 'integer': {
-				const fieldKey = idx < paramCount
-					? `param:${endpoint.parameters[idx]?.name}`
-					: `body:${extractBodySchemaFields(endpoint.requestBody!)[idx - paramCount]?.name}`;
+				const fieldKey =
+					idx < paramCount
+						? `param:${endpoint.parameters[idx]?.name}`
+						: // biome-ignore lint/style/noNonNullAssertion: requestBody is guaranteed here
+							`body:${extractBodySchemaFields(endpoint.requestBody!)[idx - paramCount]?.name}`;
 				p.navigation.toggleFieldEditorOverride(fieldKey);
 				break;
 			}

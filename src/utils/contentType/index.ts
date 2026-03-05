@@ -40,7 +40,8 @@ export function detectContentFormat(
 				// not valid JSON
 			}
 		}
-		if (trimmed.startsWith('<?xml') || trimmed.startsWith('<soap')) return 'xml';
+		if (trimmed.startsWith('<?xml') || trimmed.startsWith('<soap'))
+			return 'xml';
 		if (/^\s*<!doctype\s/i.test(trimmed) || /^\s*<html[\s>]/i.test(trimmed))
 			return 'html';
 	}

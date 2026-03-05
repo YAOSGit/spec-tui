@@ -57,9 +57,7 @@ export async function executeRequest(
 		const rawBuffer = Buffer.from(response.data as ArrayBuffer);
 		const contentType =
 			(response.headers['content-type'] as string | undefined) ?? '';
-		const isBinary = /octet-stream|image\/|audio\/|video\//.test(
-			contentType,
-		);
+		const isBinary = /octet-stream|image\/|audio\/|video\//.test(contentType);
 
 		let body: unknown;
 		if (isBinary) {

@@ -48,8 +48,7 @@ export const openConfigCommand: Command = {
 	footerOrder: 8,
 	helpSection: 'General',
 	helpLabel: 'Configure auth & headers',
-	isEnabled: (p) =>
-		!p.ui.showHelp && p.navigation.activePane !== 'config',
+	isEnabled: (p) => !p.ui.showHelp && p.navigation.activePane !== 'config',
 	execute: (p) => {
 		p.navigation.setActivePane('config');
 	},

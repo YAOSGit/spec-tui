@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
 	detectContentFormat,
-	formatBadgeLabel,
 	formatBadgeColor,
+	formatBadgeLabel,
 } from './index.js';
 
 describe('detectContentFormat', () => {
@@ -12,7 +12,9 @@ describe('detectContentFormat', () => {
 		});
 
 		it('detects json with charset', () => {
-			expect(detectContentFormat('application/json; charset=utf-8')).toBe('json');
+			expect(detectContentFormat('application/json; charset=utf-8')).toBe(
+				'json',
+			);
 		});
 
 		it('detects text/xml', () => {
@@ -58,7 +60,9 @@ describe('detectContentFormat', () => {
 
 	describe('body sniffing fallback', () => {
 		it('detects JSON body from text/plain', () => {
-			expect(detectContentFormat('text/plain', '{"key": "value"}')).toBe('json');
+			expect(detectContentFormat('text/plain', '{"key": "value"}')).toBe(
+				'json',
+			);
 		});
 
 		it('detects JSON array body', () => {
@@ -66,15 +70,24 @@ describe('detectContentFormat', () => {
 		});
 
 		it('detects XML body from text/plain', () => {
-			expect(detectContentFormat('text/plain', '<?xml version="1.0"?><root/>')).toBe('xml');
+			expect(
+				detectContentFormat('text/plain', '<?xml version="1.0"?><root/>'),
+			).toBe('xml');
 		});
 
 		it('detects HTML body without header', () => {
-			expect(detectContentFormat(undefined, '<!DOCTYPE html><html><body></body></html>')).toBe('html');
+			expect(
+				detectContentFormat(
+					undefined,
+					'<!DOCTYPE html><html><body></body></html>',
+				),
+			).toBe('html');
 		});
 
 		it('detects HTML with <html> tag', () => {
-			expect(detectContentFormat(undefined, '<html><body>Hello</body></html>')).toBe('html');
+			expect(
+				detectContentFormat(undefined, '<html><body>Hello</body></html>'),
+			).toBe('html');
 		});
 	});
 

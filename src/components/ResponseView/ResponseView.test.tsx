@@ -1,11 +1,9 @@
 import { render } from 'ink-testing-library';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { ResponseData } from '../../types/ResponseData/index.js';
-import { ResponseView, parseSuggestedFilename } from './index.js';
+import { parseSuggestedFilename, ResponseView } from './index.js';
 
-function makeResponse(
-	overrides: Partial<ResponseData> = {},
-): ResponseData {
+function makeResponse(overrides: Partial<ResponseData> = {}): ResponseData {
 	return {
 		status: 200,
 		statusText: 'OK',
@@ -37,7 +35,8 @@ describe('ResponseView', () => {
 		const { lastFrame } = render(
 			<ResponseView response={response} loading={false} />,
 		);
-		const frame = lastFrame()!;
+		const frame = lastFrame();
+		if (!frame) throw new Error('No frame rendered');
 		expect(frame).toContain('201');
 		expect(frame).toContain('Created');
 	});
@@ -83,7 +82,8 @@ describe('ResponseView', () => {
 		const { lastFrame } = render(
 			<ResponseView response={response} loading={false} />,
 		);
-		const frame = lastFrame()!;
+		const frame = lastFrame();
+		if (!frame) throw new Error('No frame rendered');
 		// The badge text "(JSON)" should not appear; the heading is just "Response"
 		expect(frame).not.toMatch(/\(JSON\)/);
 	});
@@ -96,7 +96,8 @@ describe('ResponseView', () => {
 		const { lastFrame } = render(
 			<ResponseView response={response} loading={false} />,
 		);
-		const frame = lastFrame()!;
+		const frame = lastFrame();
+		if (!frame) throw new Error('No frame rendered');
 		expect(frame).not.toMatch(/\(TXT\)/);
 	});
 
@@ -113,7 +114,8 @@ describe('ResponseView', () => {
 				onCancelSave={() => {}}
 			/>,
 		);
-		const frame = lastFrame()!;
+		const frame = lastFrame();
+		if (!frame) throw new Error('No frame rendered');
 		expect(frame).toContain('Save Response');
 		expect(frame).toContain('Enter file path');
 	});

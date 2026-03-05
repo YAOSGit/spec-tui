@@ -1,6 +1,6 @@
-import FormData from 'form-data';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import FormData from 'form-data';
 
 export interface BodySchemaField {
 	name: string;
@@ -110,11 +110,18 @@ export function hasFileFields(fields: BodySchemaField[]): boolean {
 	return fields.some((f) => f.type === 'file');
 }
 
-export function isMultipartEndpoint(endpoint: { contentTypes: { requestContentTypes: string[] } }): boolean {
-	return endpoint.contentTypes.requestContentTypes.some((ct) => ct.includes('multipart/form-data'));
+export function isMultipartEndpoint(endpoint: {
+	contentTypes: { requestContentTypes: string[] };
+}): boolean {
+	return endpoint.contentTypes.requestContentTypes.some((ct) =>
+		ct.includes('multipart/form-data'),
+	);
 }
 
-export function buildMultipartBody(fields: BodySchemaField[], values: Record<string, string>): FormData {
+export function buildMultipartBody(
+	fields: BodySchemaField[],
+	values: Record<string, string>,
+): FormData {
 	const form = new FormData();
 	for (const field of fields) {
 		const raw = values[field.name];

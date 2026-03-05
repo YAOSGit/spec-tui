@@ -1,13 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { BodySchemaField } from './index.js';
 import {
-	isArrayBody,
-	extractBodySchemaFields,
-	serializeBodyFields,
-	serializeBodyArrayFields,
-	hasFileFields,
-	isMultipartEndpoint,
 	buildMultipartBody,
+	extractBodySchemaFields,
+	hasFileFields,
+	isArrayBody,
+	isMultipartEndpoint,
+	serializeBodyArrayFields,
+	serializeBodyFields,
 } from './index.js';
 
 vi.mock('node:fs', () => ({
@@ -16,7 +16,9 @@ vi.mock('node:fs', () => ({
 
 describe('isArrayBody', () => {
 	it('returns true for array of objects', () => {
-		expect(isArrayBody({ type: 'array', items: { type: 'object' } })).toBe(true);
+		expect(isArrayBody({ type: 'array', items: { type: 'object' } })).toBe(
+			true,
+		);
 	});
 
 	it('returns false when type is not array', () => {
@@ -24,7 +26,9 @@ describe('isArrayBody', () => {
 	});
 
 	it('returns false for array of primitives', () => {
-		expect(isArrayBody({ type: 'array', items: { type: 'string' } })).toBe(false);
+		expect(isArrayBody({ type: 'array', items: { type: 'string' } })).toBe(
+			false,
+		);
 	});
 
 	it('returns false when items is missing', () => {
@@ -36,7 +40,9 @@ describe('isArrayBody', () => {
 	});
 
 	it('returns false for array of arrays', () => {
-		expect(isArrayBody({ type: 'array', items: { type: 'array' } })).toBe(false);
+		expect(isArrayBody({ type: 'array', items: { type: 'array' } })).toBe(
+			false,
+		);
 	});
 });
 
@@ -83,10 +89,10 @@ describe('extractBodySchemaFields', () => {
 		};
 		const fields = extractBodySchemaFields(schema);
 		expect(fields).toHaveLength(2);
-		expect(fields[0]!.name).toBe('id');
-		expect(fields[0]!.required).toBe(true);
-		expect(fields[1]!.name).toBe('label');
-		expect(fields[1]!.required).toBe(false);
+		expect(fields[0]?.name).toBe('id');
+		expect(fields[0]?.required).toBe(true);
+		expect(fields[1]?.name).toBe('label');
+		expect(fields[1]?.required).toBe(false);
 	});
 
 	it('maps format=binary to type file', () => {
@@ -97,7 +103,7 @@ describe('extractBodySchemaFields', () => {
 			},
 		};
 		const fields = extractBodySchemaFields(schema);
-		expect(fields[0]!.type).toBe('file');
+		expect(fields[0]?.type).toBe('file');
 	});
 
 	it('does not map non-string binary format to file', () => {
@@ -108,7 +114,7 @@ describe('extractBodySchemaFields', () => {
 			},
 		};
 		const fields = extractBodySchemaFields(schema);
-		expect(fields[0]!.type).toBe('integer');
+		expect(fields[0]?.type).toBe('integer');
 	});
 
 	it('returns empty array for object with no properties', () => {
@@ -140,7 +146,7 @@ describe('extractBodySchemaFields', () => {
 			},
 		};
 		const fields = extractBodySchemaFields(schema);
-		expect(fields[0]!.required).toBe(false);
+		expect(fields[0]?.required).toBe(false);
 	});
 
 	it('defaults type to unknown when missing', () => {
@@ -151,17 +157,42 @@ describe('extractBodySchemaFields', () => {
 			},
 		};
 		const fields = extractBodySchemaFields(schema);
-		expect(fields[0]!.type).toBe('unknown');
+		expect(fields[0]?.type).toBe('unknown');
 	});
 });
 
 describe('serializeBodyFields', () => {
 	const fields: BodySchemaField[] = [
-		{ name: 'name', type: 'string', required: true, schema: { type: 'string' } },
-		{ name: 'age', type: 'integer', required: false, schema: { type: 'integer' } },
-		{ name: 'score', type: 'number', required: false, schema: { type: 'number' } },
-		{ name: 'active', type: 'boolean', required: false, schema: { type: 'boolean' } },
-		{ name: 'meta', type: 'object', required: false, schema: { type: 'object' } },
+		{
+			name: 'name',
+			type: 'string',
+			required: true,
+			schema: { type: 'string' },
+		},
+		{
+			name: 'age',
+			type: 'integer',
+			required: false,
+			schema: { type: 'integer' },
+		},
+		{
+			name: 'score',
+			type: 'number',
+			required: false,
+			schema: { type: 'number' },
+		},
+		{
+			name: 'active',
+			type: 'boolean',
+			required: false,
+			schema: { type: 'boolean' },
+		},
+		{
+			name: 'meta',
+			type: 'object',
+			required: false,
+			schema: { type: 'object' },
+		},
 		{ name: 'tags', type: 'array', required: false, schema: { type: 'array' } },
 	];
 
@@ -196,17 +227,23 @@ describe('serializeBodyFields', () => {
 	});
 
 	it('parses JSON for object type', () => {
-		const result = JSON.parse(serializeBodyFields(fields, { meta: '{"key":"val"}' }));
+		const result = JSON.parse(
+			serializeBodyFields(fields, { meta: '{"key":"val"}' }),
+		);
 		expect(result.meta).toEqual({ key: 'val' });
 	});
 
 	it('returns raw string for invalid JSON in object field', () => {
-		const result = JSON.parse(serializeBodyFields(fields, { meta: 'not-json' }));
+		const result = JSON.parse(
+			serializeBodyFields(fields, { meta: 'not-json' }),
+		);
 		expect(result.meta).toBe('not-json');
 	});
 
 	it('parses JSON for array type', () => {
-		const result = JSON.parse(serializeBodyFields(fields, { tags: '["a","b"]' }));
+		const result = JSON.parse(
+			serializeBodyFields(fields, { tags: '["a","b"]' }),
+		);
 		expect(result.tags).toEqual(['a', 'b']);
 	});
 
@@ -265,8 +302,18 @@ describe('serializeBodyFields', () => {
 
 describe('serializeBodyArrayFields', () => {
 	const fields: BodySchemaField[] = [
-		{ name: 'id', type: 'integer', required: true, schema: { type: 'integer' } },
-		{ name: 'value', type: 'string', required: false, schema: { type: 'string' } },
+		{
+			name: 'id',
+			type: 'integer',
+			required: true,
+			schema: { type: 'integer' },
+		},
+		{
+			name: 'value',
+			type: 'string',
+			required: false,
+			schema: { type: 'string' },
+		},
 	];
 
 	it('serializes multiple items into a JSON array', () => {
@@ -301,15 +348,30 @@ describe('serializeBodyArrayFields', () => {
 describe('hasFileFields', () => {
 	it('returns true when a file field exists', () => {
 		const fields: BodySchemaField[] = [
-			{ name: 'doc', type: 'file', required: true, schema: { type: 'string', format: 'binary' } },
-			{ name: 'name', type: 'string', required: false, schema: { type: 'string' } },
+			{
+				name: 'doc',
+				type: 'file',
+				required: true,
+				schema: { type: 'string', format: 'binary' },
+			},
+			{
+				name: 'name',
+				type: 'string',
+				required: false,
+				schema: { type: 'string' },
+			},
 		];
 		expect(hasFileFields(fields)).toBe(true);
 	});
 
 	it('returns false when no file fields exist', () => {
 		const fields: BodySchemaField[] = [
-			{ name: 'name', type: 'string', required: false, schema: { type: 'string' } },
+			{
+				name: 'name',
+				type: 'string',
+				required: false,
+				schema: { type: 'string' },
+			},
 		];
 		expect(hasFileFields(fields)).toBe(false);
 	});
@@ -329,7 +391,9 @@ describe('isMultipartEndpoint', () => {
 
 	it('returns true when multipart/form-data is among several types', () => {
 		const endpoint = {
-			contentTypes: { requestContentTypes: ['application/json', 'multipart/form-data'] },
+			contentTypes: {
+				requestContentTypes: ['application/json', 'multipart/form-data'],
+			},
 		};
 		expect(isMultipartEndpoint(endpoint)).toBe(true);
 	});
@@ -350,7 +414,9 @@ describe('isMultipartEndpoint', () => {
 
 	it('matches partial content type string containing multipart/form-data', () => {
 		const endpoint = {
-			contentTypes: { requestContentTypes: ['multipart/form-data; boundary=something'] },
+			contentTypes: {
+				requestContentTypes: ['multipart/form-data; boundary=something'],
+			},
 		};
 		expect(isMultipartEndpoint(endpoint)).toBe(true);
 	});
@@ -359,8 +425,18 @@ describe('isMultipartEndpoint', () => {
 describe('buildMultipartBody', () => {
 	it('builds FormData with string fields', () => {
 		const fields: BodySchemaField[] = [
-			{ name: 'title', type: 'string', required: true, schema: { type: 'string' } },
-			{ name: 'count', type: 'integer', required: false, schema: { type: 'integer' } },
+			{
+				name: 'title',
+				type: 'string',
+				required: true,
+				schema: { type: 'string' },
+			},
+			{
+				name: 'count',
+				type: 'integer',
+				required: false,
+				schema: { type: 'integer' },
+			},
 		];
 		const form = buildMultipartBody(fields, { title: 'hello', count: '5' });
 		expect(form).toBeDefined();
@@ -372,11 +448,17 @@ describe('buildMultipartBody', () => {
 	it('appends file fields via createReadStream', async () => {
 		const fs = await import('node:fs');
 		const fields: BodySchemaField[] = [
-			{ name: 'avatar', type: 'file', required: true, schema: { type: 'string', format: 'binary' } },
+			{
+				name: 'avatar',
+				type: 'file',
+				required: true,
+				schema: { type: 'string', format: 'binary' },
+			},
 		];
 		const form = buildMultipartBody(fields, { avatar: '/tmp/photo.png' });
 		expect(fs.createReadStream).toHaveBeenCalled();
-		const calledPath = (fs.createReadStream as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
+		const calledPath = (fs.createReadStream as ReturnType<typeof vi.fn>).mock
+			.calls[0]?.[0] as string;
 		// path.resolve('/tmp/photo.png') should stay as /tmp/photo.png on POSIX
 		expect(calledPath).toContain('photo.png');
 		expect(form).toBeDefined();
@@ -384,7 +466,12 @@ describe('buildMultipartBody', () => {
 
 	it('skips empty string values', () => {
 		const fields: BodySchemaField[] = [
-			{ name: 'name', type: 'string', required: false, schema: { type: 'string' } },
+			{
+				name: 'name',
+				type: 'string',
+				required: false,
+				schema: { type: 'string' },
+			},
 		];
 		const form = buildMultipartBody(fields, { name: '' });
 		// The form should have no appended fields; getBuffer returns only boundary markers
@@ -395,7 +482,12 @@ describe('buildMultipartBody', () => {
 
 	it('skips undefined values', () => {
 		const fields: BodySchemaField[] = [
-			{ name: 'missing', type: 'string', required: false, schema: { type: 'string' } },
+			{
+				name: 'missing',
+				type: 'string',
+				required: false,
+				schema: { type: 'string' },
+			},
 		];
 		const form = buildMultipartBody(fields, {});
 		const buffer = form.getBuffer().toString();
@@ -407,8 +499,18 @@ describe('buildMultipartBody', () => {
 		(fs.createReadStream as ReturnType<typeof vi.fn>).mockClear();
 
 		const fields: BodySchemaField[] = [
-			{ name: 'description', type: 'string', required: false, schema: { type: 'string' } },
-			{ name: 'attachment', type: 'file', required: true, schema: { type: 'string', format: 'binary' } },
+			{
+				name: 'description',
+				type: 'string',
+				required: false,
+				schema: { type: 'string' },
+			},
+			{
+				name: 'attachment',
+				type: 'file',
+				required: true,
+				schema: { type: 'string', format: 'binary' },
+			},
 		];
 		const form = buildMultipartBody(fields, {
 			description: 'A file',

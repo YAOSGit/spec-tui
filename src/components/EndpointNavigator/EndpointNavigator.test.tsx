@@ -29,10 +29,7 @@ const mockEndpoints: Endpoint[] = [
 describe('EndpointNavigator', () => {
 	it('renders endpoint paths', () => {
 		const { lastFrame } = render(
-			<EndpointNavigator
-				endpoints={mockEndpoints}
-				selectedIndex={0}
-			/>,
+			<EndpointNavigator endpoints={mockEndpoints} selectedIndex={0} />,
 		);
 		const frame = lastFrame();
 		expect(frame).toContain('/pets');
@@ -40,10 +37,7 @@ describe('EndpointNavigator', () => {
 
 	it('renders HTTP methods', () => {
 		const { lastFrame } = render(
-			<EndpointNavigator
-				endpoints={mockEndpoints}
-				selectedIndex={0}
-			/>,
+			<EndpointNavigator endpoints={mockEndpoints} selectedIndex={0} />,
 		);
 		const frame = lastFrame();
 		expect(frame).toContain('GET');

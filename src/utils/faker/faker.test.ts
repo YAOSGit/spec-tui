@@ -163,7 +163,7 @@ describe('generateObjectFromSchema', () => {
 		const users = result.users as Record<string, unknown>[];
 		expect(users.length).toBe(1);
 		expect(users[0]).toHaveProperty('name');
-		expect(typeof users[0]!.name).toBe('string');
+		expect(typeof users[0]?.name).toBe('string');
 	});
 
 	it('handles array properties with primitive items', () => {

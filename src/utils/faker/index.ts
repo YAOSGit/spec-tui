@@ -82,7 +82,9 @@ export function generateArrayParamValue(
 
 	const category = guessCategory(paramName, items);
 	const n = count ?? 3;
-	return Array.from({ length: n }, () => generateValue(category, items)).join(',');
+	return Array.from({ length: n }, () => generateValue(category, items)).join(
+		',',
+	);
 }
 
 export function generateObjectFromSchema(

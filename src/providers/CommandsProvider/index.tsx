@@ -32,7 +32,12 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 
 	const handleInput = useCallback(
 		(input: string, key: Key) => {
-			if (ui.showHelp || ui.showFakerPicker || navigation.activePane === 'config') return;
+			if (
+				ui.showHelp ||
+				ui.showFakerPicker ||
+				navigation.activePane === 'config'
+			)
+				return;
 
 			for (const command of COMMANDS) {
 				if (

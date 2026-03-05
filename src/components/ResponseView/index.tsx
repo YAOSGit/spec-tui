@@ -5,8 +5,8 @@ import TextInput from 'ink-text-input';
 import { useEffect, useMemo, useState } from 'react';
 import {
 	detectContentFormat,
-	formatBadgeLabel,
 	formatBadgeColor,
+	formatBadgeLabel,
 } from '../../utils/contentType/index.js';
 import { renderResponseBody } from '../../utils/responseRenderers/index.js';
 import { statusColor } from '../../utils/statusColor/index.js';
@@ -54,12 +54,11 @@ export function ResponseView({
 	// Reset scroll when response changes
 	useEffect(() => {
 		setScrollOffset(0);
-	}, [response]);
+	}, []);
 
 	const contentFormat = useMemo(() => {
 		const ct =
-			response?.headers['content-type'] ??
-			response?.headers['Content-Type'];
+			response?.headers['content-type'] ?? response?.headers['Content-Type'];
 		const raw = typeof response?.body === 'string' ? response.body : '';
 		return detectContentFormat(ct, raw);
 	}, [response]);
@@ -67,10 +66,7 @@ export function ResponseView({
 	// Initialize save path when entering save mode
 	useEffect(() => {
 		if (saveMode && response) {
-			const suggested = parseSuggestedFilename(
-				response.headers,
-				contentFormat,
-			);
+			const suggested = parseSuggestedFilename(response.headers, contentFormat);
 			setSavePath(`./${suggested}`);
 		}
 	}, [saveMode, response, contentFormat]);
@@ -93,12 +89,16 @@ export function ResponseView({
 	const visibleLineCount = height ? Math.max(height - 6, 1) : lines.length;
 	const maxOffset = Math.max(0, lines.length - visibleLineCount);
 	const clampedOffset = Math.min(scrollOffset, maxOffset);
-	const visibleSlice = lines.slice(clampedOffset, clampedOffset + visibleLineCount);
+	const visibleSlice = lines.slice(
+		clampedOffset,
+		clampedOffset + visibleLineCount,
+	);
 
 	const totalLines = lines.length;
 	const startLine = clampedOffset + 1;
 	const endLine = Math.min(clampedOffset + visibleLineCount, totalLines);
-	const showScrollIndicator = response && !loading && totalLines > visibleLineCount;
+	const showScrollIndicator =
+		response && !loading && totalLines > visibleLineCount;
 
 	const badgeLabel = formatBadgeLabel(contentFormat);
 	const badgeColor = formatBadgeColor(contentFormat);
@@ -151,10 +151,7 @@ export function ResponseView({
 				<Box marginTop={1} flexDirection="column" gap={1}>
 					<Text>Enter file path:</Text>
 					<Box>
-						<TextInput
-							value={savePath}
-							onChange={setSavePath}
-						/>
+						<TextInput value={savePath} onChange={setSavePath} />
 					</Box>
 					<Box>
 						{savePathValid ? (
@@ -163,9 +160,7 @@ export function ResponseView({
 							<Text color="red">✗ Directory does not exist</Text>
 						)}
 					</Box>
-					{saveError && (
-						<Text color="red">Error: {saveError}</Text>
-					)}
+					{saveError && <Text color="red">Error: {saveError}</Text>}
 					<Box gap={2} marginTop={1}>
 						<Text dimColor>Enter — save</Text>
 						<Text dimColor>Esc — cancel</Text>
@@ -217,6 +212,7 @@ export function ResponseView({
 					</Box>
 					<Box flexDirection="column" marginTop={1} overflowX="hidden">
 						{visibleSlice.map((line, i) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: visible slice indices are stable
 							<Text key={clampedOffset + i} wrap="truncate">
 								{line || ' '}
 							</Text>

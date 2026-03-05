@@ -35,16 +35,16 @@ export function renderXml(raw: string): string[] {
 			const selfClosing = trimmed.endsWith('/>');
 			const match = trimmed.match(/^<([^\s/>]+)([\s\S]*?)(\/?>)$/);
 			if (match) {
-				const tagName = match[1]!;
-				const attrs = match[2]!;
-				const close = match[3]!;
+				const tagName = match[1] ?? '';
+				const attrs = match[2] ?? '';
+				const close = match[3] ?? '';
 
 				let attrStr = '';
 				if (attrs.trim()) {
 					attrStr = attrs.replace(
 						/(\w[\w-]*)=(["'])(.*?)\2/g,
 						(_m, name: string, _q: string, val: string) =>
-							chalk.green(name) + '=' + chalk.yellow(`"${val}"`),
+							`${chalk.green(name)}=${chalk.yellow(`"${val}"`)}`,
 					);
 				}
 
@@ -80,7 +80,7 @@ function parseCsvLine(line: string): string[] {
 	let inQuotes = false;
 
 	for (let i = 0; i < line.length; i++) {
-		const ch = line[i]!;
+		const ch = line[i] ?? '';
 		if (inQuotes) {
 			if (ch === '"' && line[i + 1] === '"') {
 				current += '"';
@@ -116,7 +116,7 @@ export function renderCsv(raw: string, maxWidth = 120): string[] {
 	const colWidths: number[] = Array.from({ length: colCount }, () => 0);
 	for (const row of rows) {
 		for (let c = 0; c < colCount; c++) {
-			colWidths[c] = Math.max(colWidths[c]!, (row[c] ?? '').length);
+			colWidths[c] = Math.max(colWidths[c] ?? 0, (row[c] ?? '').length);
 		}
 	}
 
@@ -125,17 +125,17 @@ export function renderCsv(raw: string, maxWidth = 120): string[] {
 	const available = maxWidth - separatorWidth;
 	const maxColWidth = Math.max(Math.floor(available / colCount), 5);
 	for (let c = 0; c < colCount; c++) {
-		colWidths[c] = Math.min(colWidths[c]!, maxColWidth);
+		colWidths[c] = Math.min(colWidths[c] ?? 0, maxColWidth);
 	}
 
 	const lines: string[] = [];
 	const separator = chalk.gray(' | ');
 
 	for (let r = 0; r < rows.length; r++) {
-		const row = rows[r]!;
+		const row = rows[r] ?? [];
 		const cells = Array.from({ length: colCount }, (_, c) => {
 			const val = (row[c] ?? '').slice(0, colWidths[c]);
-			return val.padEnd(colWidths[c]!);
+			return val.padEnd(colWidths[c] ?? 0);
 		});
 
 		if (r === 0) {
@@ -198,9 +198,8 @@ export function renderJavascript(raw: string): string[] {
 
 		let result = line;
 		// Strings (single and double quoted)
-		result = result.replace(
-			/(["'`])(?:(?!\1|\\).|\\.)*\1/g,
-			(m) => chalk.green(m),
+		result = result.replace(/(["'`])(?:(?!\1|\\).|\\.)*\1/g, (m) =>
+			chalk.green(m),
 		);
 		// Numbers
 		result = result.replace(/\b(\d+\.?\d*)\b/g, (m) => chalk.yellow(m));
@@ -216,27 +215,23 @@ export function renderJavascript(raw: string): string[] {
 export function renderCss(raw: string): string[] {
 	return raw.split('\n').map((line) => {
 		// Comments
-		if (/^\s*\/\*/.test(line) || /^\s*\*/.test(line))
-			return chalk.gray(line);
+		if (/^\s*\/\*/.test(line) || /^\s*\*/.test(line)) return chalk.gray(line);
 
 		// Selectors (lines ending with {)
-		if (/\{\s*$/.test(line.trim()))
-			return chalk.cyan(line);
+		if (/\{\s*$/.test(line.trim())) return chalk.cyan(line);
 
 		// Property: value lines
 		const propMatch = line.match(/^(\s*)([\w-]+)(\s*:\s*)(.+?)(;?\s*)$/);
 		if (propMatch) {
 			const [, ws, prop, colon, value, semi] = propMatch;
-			let coloredValue = value!;
+			let coloredValue = value ?? '';
 			// Hex colors
-			coloredValue = coloredValue.replace(
-				/#[0-9a-fA-F]{3,8}\b/g,
-				(m) => chalk.yellow(m),
+			coloredValue = coloredValue.replace(/#[0-9a-fA-F]{3,8}\b/g, (m) =>
+				chalk.yellow(m),
 			);
 			// Strings
-			coloredValue = coloredValue.replace(
-				/(["'])(?:(?!\1|\\).|\\.)*\1/g,
-				(m) => chalk.green(m),
+			coloredValue = coloredValue.replace(/(["'])(?:(?!\1|\\).|\\.)*\1/g, (m) =>
+				chalk.green(m),
 			);
 			// Numbers with units
 			coloredValue = coloredValue.replace(
@@ -265,17 +260,16 @@ export function renderHexDump(raw: string): string[] {
 		const chunk = bytes.slice(offset, offset + 16);
 
 		// Offset
-		const offsetStr = chalk.gray(
-			offset.toString(16).padStart(8, '0') + ':',
-		);
+		const offsetStr = chalk.gray(`${offset.toString(16).padStart(8, '0')}:`);
 
 		// Hex bytes in pairs
 		const hexPairs: string[] = [];
 		for (let i = 0; i < 16; i += 2) {
-			const b0 = i < chunk.length ? chunk[i]!.toString(16).padStart(2, '0') : '  ';
+			const b0 =
+				i < chunk.length ? chunk[i]?.toString(16).padStart(2, '0') : '  ';
 			const b1 =
 				i + 1 < chunk.length
-					? chunk[i + 1]!.toString(16).padStart(2, '0')
+					? chunk[i + 1]?.toString(16).padStart(2, '0')
 					: '  ';
 			hexPairs.push(b0 + b1);
 		}
@@ -285,7 +279,7 @@ export function renderHexDump(raw: string): string[] {
 		let ascii = '';
 		for (let i = 0; i < 16; i++) {
 			if (i < chunk.length) {
-				const b = chunk[i]!;
+				const b = chunk[i] ?? 0;
 				ascii +=
 					b >= 0x20 && b <= 0x7e
 						? chalk.green(String.fromCharCode(b))
@@ -317,8 +311,6 @@ export function renderResponseBody(
 			return renderCss(raw);
 		case 'binary':
 			return renderHexDump(raw);
-		case 'json':
-		case 'text':
 		default:
 			return raw.split('\n');
 	}

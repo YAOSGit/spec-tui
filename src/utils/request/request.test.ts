@@ -1,7 +1,7 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { AxiosResponse } from 'axios';
-import { buildUrl, executeRequest } from './index.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RequestConfig } from '../../types/RequestConfig/index.js';
+import { buildUrl, executeRequest } from './index.js';
 
 vi.mock('axios');
 
@@ -75,10 +75,9 @@ describe('executeRequest', () => {
 		const mocked = vi.mocked(axios);
 		const payload = { message: 'hello', count: 42 };
 		mocked.mockResolvedValueOnce(
-			mockAxiosResponse(
-				Buffer.from(JSON.stringify(payload)),
-				{ 'content-type': 'application/json; charset=utf-8' },
-			),
+			mockAxiosResponse(Buffer.from(JSON.stringify(payload)), {
+				'content-type': 'application/json; charset=utf-8',
+			}),
 		);
 
 		const result = await executeRequest(baseUrl, makeConfig());
@@ -92,10 +91,9 @@ describe('executeRequest', () => {
 		const mocked = vi.mocked(axios);
 		const badJson = '{ not valid json !!!';
 		mocked.mockResolvedValueOnce(
-			mockAxiosResponse(
-				Buffer.from(badJson),
-				{ 'content-type': 'application/json' },
-			),
+			mockAxiosResponse(Buffer.from(badJson), {
+				'content-type': 'application/json',
+			}),
 		);
 
 		const result = await executeRequest(baseUrl, makeConfig());
@@ -144,19 +142,16 @@ describe('executeRequest', () => {
 		const mocked = vi.mocked(axios);
 		const payload = { ok: true };
 		mocked.mockResolvedValueOnce(
-			mockAxiosResponse(
-				Buffer.from(JSON.stringify(payload)),
-				{ 'content-type': 'application/json' },
-			),
+			mockAxiosResponse(Buffer.from(JSON.stringify(payload)), {
+				'content-type': 'application/json',
+			}),
 		);
 
 		const result = await executeRequest(baseUrl, makeConfig());
 
 		expect(result.rawBuffer).toBeDefined();
 		expect(Buffer.isBuffer(result.rawBuffer)).toBe(true);
-		expect(result.rawBuffer!.toString('utf-8')).toBe(
-			JSON.stringify(payload),
-		);
+		expect(result.rawBuffer?.toString('utf-8')).toBe(JSON.stringify(payload));
 	});
 
 	it('returns status 0 and error message when axios throws', async () => {
@@ -190,7 +185,9 @@ describe('executeRequest', () => {
 		const { default: axios } = await import('axios');
 		const mocked = vi.mocked(axios);
 		mocked.mockResolvedValueOnce(
-			mockAxiosResponse(Buffer.from('{}'), { 'content-type': 'application/json' }),
+			mockAxiosResponse(Buffer.from('{}'), {
+				'content-type': 'application/json',
+			}),
 		);
 
 		const result = await executeRequest(baseUrl, makeConfig());

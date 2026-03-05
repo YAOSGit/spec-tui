@@ -23,9 +23,7 @@ export function AppProviders({
 			<NavigationProvider>
 				<UIStateProvider>
 					<RequestConfigProvider>
-						<CommandsProvider onQuit={onQuit}>
-							{children}
-						</CommandsProvider>
+						<CommandsProvider onQuit={onQuit}>{children}</CommandsProvider>
 					</RequestConfigProvider>
 				</UIStateProvider>
 			</NavigationProvider>
