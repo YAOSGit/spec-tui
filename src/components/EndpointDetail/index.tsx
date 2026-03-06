@@ -5,7 +5,7 @@ import {
 	formatBadgeColor,
 	formatBadgeLabel,
 } from '../../utils/contentType/index.js';
-import { METHOD_COLORS } from '../EndpointNavigator/EndpointNavigator.consts.js';
+import { METHOD_COLORS } from '../../utils/methodColors/index.js';
 import { FieldEditor } from '../FieldEditor/index.js';
 import { buildFieldItems, FieldList } from '../FieldList/index.js';
 import { RequestPreview } from '../RequestPreview/index.js';

@@ -1,7 +1,7 @@
 import { Box, Text } from 'ink';
 import { useMemo } from 'react';
 import type { Endpoint } from '../../types/Endpoint/index.js';
-import { METHOD_COLORS } from './EndpointNavigator.consts.js';
+import { METHOD_COLORS } from '../../utils/methodColors/index.js';
 import type { EndpointNavigatorProps } from './EndpointNavigator.types.js';
 
 type DisplayRow =

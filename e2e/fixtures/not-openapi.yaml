@@ -1,0 +1,10 @@
+name: Not an OpenAPI spec
+version: 1
+settings:
+  debug: true
+  logLevel: info
+items:
+  - name: foo
+    value: bar
+  - name: baz
+    value: qux

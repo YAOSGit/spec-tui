@@ -16,6 +16,7 @@ import { useRequestConfig } from '../providers/RequestConfigProvider/index.js';
 import { useSpec } from '../providers/SpecProvider/index.js';
 import { useUI } from '../providers/UIStateProvider/index.js';
 import type { ResponseData } from '../types/ResponseData/index.js';
+import type { SentRequest } from '../types/SentRequest/index.js';
 import {
 	buildMultipartBody,
 	extractBodySchemaFields,
@@ -29,13 +30,6 @@ import type { FakerCategory } from '../utils/faker/faker.consts.js';
 import { generateValue } from '../utils/faker/index.js';
 import { buildRequestHeaders } from '../utils/headers/index.js';
 import { buildUrl, executeRequest } from '../utils/request/index.js';
-
-export type SentRequest = {
-	method: string;
-	url: string;
-	headers: Record<string, string>;
-	body?: unknown;
-};
 
 export function AppContent() {
 	const { endpoints, specTitle, baseUrl, securitySchemes, loading, error } =

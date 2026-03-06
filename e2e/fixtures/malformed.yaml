@@ -1,0 +1,13 @@
+openapi: "3.0.3"
+info:
+  title: Malformed
+  version: "1.0.0"
+paths:
+  /broken:
+    get:
+      summary: This YAML is malformed
+      responses:
+        "200"
+          description: missing colon above
+    - invalid list item here
+  not: [valid: yaml: {content

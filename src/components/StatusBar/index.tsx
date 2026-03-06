@@ -1,5 +1,5 @@
 import { Box, Text } from 'ink';
-import { METHOD_COLORS } from '../EndpointNavigator/EndpointNavigator.consts.js';
+import { METHOD_COLORS } from '../../utils/methodColors/index.js';
 import type { StatusBarProps } from './StatusBar.types.js';
 
 export function StatusBar({

@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
+import { METHOD_COLORS } from '../../utils/methodColors/index.js';
 import { statusColor } from '../../utils/statusColor/index.js';
-import { METHOD_COLORS } from '../EndpointNavigator/EndpointNavigator.consts.js';
 import type { NavigatorSidePanelProps } from './NavigatorSidePanel.types.js';
 
 export function NavigatorSidePanel({

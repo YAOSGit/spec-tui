@@ -1,11 +1,5 @@
 import { Box, Text } from 'ink';
-import type { SentRequest } from '../../app/app.js';
-
-export interface RequestPreviewProps {
-	request: SentRequest | null;
-	loading: boolean;
-	height?: number;
-}
+import type { RequestPreviewProps } from './RequestPreview.types.js';
 
 export function RequestPreview({
 	request,
