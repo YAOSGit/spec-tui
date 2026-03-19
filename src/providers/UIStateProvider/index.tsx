@@ -1,12 +1,12 @@
 import type React from 'react';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useMemo } from 'react';
 import { useUIState } from '../../hooks/useUIState/index.js';
 import type {
 	UIStateContextValue,
 	UIStateProviderProps,
 } from './UIStateProvider.types.js';
 
-const UIStateContext = createContext<UIStateContextValue | null>(null);
+export const UIStateContext = createContext<UIStateContextValue | null>(null);
 
 export const UIStateProvider: React.FC<UIStateProviderProps> = ({
 	children,
@@ -20,10 +20,4 @@ export const UIStateProvider: React.FC<UIStateProviderProps> = ({
 	);
 };
 
-export const useUI = (): UIStateContextValue => {
-	const context = useContext(UIStateContext);
-	if (!context) {
-		throw new Error('useUI must be used within a UIStateProvider');
-	}
-	return context;
-};
+export { useUI } from '../../hooks/useUI/index.js';

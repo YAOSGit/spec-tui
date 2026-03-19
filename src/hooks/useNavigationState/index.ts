@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import type {
 	BodyEditMode,
 	DetailView,
+	NavigationContextValue,
 	Pane,
 } from '../../providers/NavigationProvider/NavigationProvider.types.js';
 import type { Endpoint } from '../../types/Endpoint/index.js';
@@ -9,7 +10,7 @@ import type { HistoryEntry } from '../../types/ResponseData/index.js';
 
 const MAX_HISTORY = 50;
 
-export const useNavigationState = () => {
+export const useNavigationState = (): NavigationContextValue => {
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [activePane, setActivePane] = useState<Pane>('navigator');
 	const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint | null>(

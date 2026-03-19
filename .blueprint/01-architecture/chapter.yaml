@@ -1,0 +1,2 @@
+title: Architecture
+description: How spec-tui parses specs, navigates endpoints, and builds requests.

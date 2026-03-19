@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from 'vitest';
-import type { CommandProviders } from '../../providers/CommandsProvider/CommandsProvider.types.js';
+import type { SpecTuiDeps } from '../../providers/CommandsProvider/CommandsProvider.types.js';
 import type { Command } from './index.js';
 
 describe('Command types', () => {
@@ -13,13 +13,13 @@ describe('Command types', () => {
 
 	it('isEnabled is a function returning boolean', () => {
 		expectTypeOf<Command['isEnabled']>().toEqualTypeOf<
-			(p: CommandProviders) => boolean
+			(p: SpecTuiDeps) => boolean
 		>();
 	});
 
 	it('execute is a function returning void', () => {
 		expectTypeOf<Command['execute']>().toEqualTypeOf<
-			(p: CommandProviders) => void
+			(p: SpecTuiDeps) => void
 		>();
 	});
 
@@ -27,5 +27,9 @@ describe('Command types', () => {
 		expectTypeOf<Command['footer']>().toEqualTypeOf<
 			'priority' | 'optional' | 'hidden' | undefined
 		>();
+	});
+
+	it('displayKey is a required string', () => {
+		expectTypeOf<Command['displayKey']>().toBeString();
 	});
 });

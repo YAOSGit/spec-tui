@@ -9,6 +9,7 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
+		"types": ["node", "react"],
 		"outDir": "./dist"
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx"],

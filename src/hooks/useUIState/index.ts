@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
+import type { UIStateContextValue } from '../../providers/UIStateProvider/UIStateProvider.types.js';
 
-export const useUIState = () => {
+export const useUIState = (): UIStateContextValue => {
 	const [showHelp, setShowHelp] = useState(false);
 	const [showFakerPicker, setShowFakerPicker] = useState(false);
 	const [saveMode, setSaveMode] = useState(false);

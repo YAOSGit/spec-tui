@@ -1,12 +1,12 @@
 import type React from 'react';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useMemo } from 'react';
 import { useSpecState } from '../../hooks/useSpecState/index.js';
 import type {
 	SpecContextValue,
 	SpecProviderProps,
 } from './SpecProvider.types.js';
 
-const SpecContext = createContext<SpecContextValue | null>(null);
+export const SpecContext = createContext<SpecContextValue | null>(null);
 
 export const SpecProvider: React.FC<SpecProviderProps> = ({
 	specSource,
@@ -33,10 +33,4 @@ export const SpecProvider: React.FC<SpecProviderProps> = ({
 	return <SpecContext.Provider value={value}>{children}</SpecContext.Provider>;
 };
 
-export const useSpec = (): SpecContextValue => {
-	const context = useContext(SpecContext);
-	if (!context) {
-		throw new Error('useSpec must be used within a SpecProvider');
-	}
-	return context;
-};
+export { useSpec } from '../../hooks/useSpec/index.js';

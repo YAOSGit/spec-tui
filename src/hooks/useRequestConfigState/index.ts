@@ -4,7 +4,9 @@ import {
 	DEFAULT_AUTH_CONFIG,
 } from '../../types/AuthConfig/index.js';
 
-export const useRequestConfigState = () => {
+import type { RequestConfigContextValue } from '../../providers/RequestConfigProvider/RequestConfigProvider.types.js';
+
+export const useRequestConfigState = (): RequestConfigContextValue => {
 	const [globalHeaders, setGlobalHeaders] = useState<Record<string, string>>(
 		{},
 	);

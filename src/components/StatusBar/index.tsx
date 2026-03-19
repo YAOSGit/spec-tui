@@ -1,5 +1,6 @@
 import { Box, Text } from 'ink';
-import { METHOD_COLORS } from '../../utils/methodColors/index.js';
+import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
+import { SPEC_TITLE_COLOR } from './StatusBar.consts.js';
 import type { StatusBarProps } from './StatusBar.types.js';
 
 export function StatusBar({
@@ -9,7 +10,7 @@ export function StatusBar({
 	activeView,
 }: StatusBarProps) {
 	const crumbs: { label: string; color?: string; bold?: boolean }[] = [
-		{ label: specTitle, color: 'cyan' },
+		{ label: specTitle, color: SPEC_TITLE_COLOR },
 	];
 
 	if (activePane === 'config') {
@@ -17,7 +18,7 @@ export function StatusBar({
 	} else if (activePane === 'detail' && selectedEndpoint) {
 		crumbs.push({
 			label: `${selectedEndpoint.method.toUpperCase()} ${selectedEndpoint.path}`,
-			color: METHOD_COLORS[selectedEndpoint.method],
+			color: METHOD_COLORS[selectedEndpoint.method.toUpperCase()],
 			bold: true,
 		});
 		if (activeView) {
@@ -30,7 +31,7 @@ export function StatusBar({
 	}
 
 	return (
-		<Box borderStyle="round" borderColor="gray" paddingX={1}>
+		<Box width="100%" borderStyle="round" borderColor="gray" paddingX={1}>
 			<Text wrap="truncate">
 				{crumbs.map((crumb, i) => (
 					<Text key={crumb.label}>

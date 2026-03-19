@@ -4,15 +4,24 @@ import { Box, Text, useInput } from 'ink';
 import TextInput from 'ink-text-input';
 import { useState } from 'react';
 import { schemaSummary } from '../../utils/schemaToType/index.js';
+import {
+	FIELD_ARRAY_BADGE_COLOR,
+	FIELD_DIR_COLOR,
+	FIELD_HIGHLIGHT_COLOR,
+	FIELD_INVALID_COLOR,
+	FIELD_MODE_BADGE_COLOR,
+	FIELD_VALID_COLOR,
+	FIELD_VALUE_COLOR,
+} from './FieldEditor.consts.js';
 import type { FieldEditorProps } from './FieldEditor.types.js';
 
-function BooleanToggle({
+const BooleanToggle = ({
 	value,
 	onChange,
 }: {
 	value: string;
 	onChange: (v: string) => void;
-}) {
+}) => {
 	const options = ['', 'true', 'false'];
 	useInput((_input, key) => {
 		const idx = options.indexOf(value);
@@ -28,7 +37,7 @@ function BooleanToggle({
 			{options.map((opt) => (
 				<Text
 					key={opt || 'empty'}
-					color={value === opt ? 'cyan' : undefined}
+					color={value === opt ? FIELD_HIGHLIGHT_COLOR : undefined}
 					bold={value === opt}
 				>
 					{value === opt ? '●' : '○'} {opt || '(empty)'}
@@ -36,9 +45,9 @@ function BooleanToggle({
 			))}
 		</Box>
 	);
-}
+};
 
-function EnumSelector({
+const EnumSelector = ({
 	options: rawOptions,
 	value,
 	onChange,
@@ -46,7 +55,7 @@ function EnumSelector({
 	options: string[];
 	value: string;
 	onChange: (v: string) => void;
-}) {
+}) => {
 	const options = ['', ...rawOptions];
 	const [highlight, setHighlight] = useState(
 		Math.max(0, options.indexOf(value)),
@@ -67,7 +76,7 @@ function EnumSelector({
 			{options.map((opt, i) => (
 				<Text
 					key={opt || 'empty'}
-					color={i === highlight ? 'cyan' : undefined}
+					color={i === highlight ? FIELD_HIGHLIGHT_COLOR : undefined}
 					bold={i === highlight}
 				>
 					{value === opt ? '●' : '○'} {opt || '(empty)'}
@@ -75,15 +84,15 @@ function EnumSelector({
 			))}
 		</Box>
 	);
-}
+};
 
-function FilePathInput({
+const FilePathInput = ({
 	value,
 	onChange,
 }: {
 	value: string;
 	onChange: (v: string) => void;
-}) {
+}) => {
 	let status: { valid: boolean; label: string } = { valid: false, label: '' };
 	if (value) {
 		try {
@@ -108,13 +117,13 @@ function FilePathInput({
 		<Box flexDirection="column">
 			<TextInput value={value} onChange={onChange} />
 			{value && (
-				<Text color={status.valid ? 'green' : 'red'}>{status.label}</Text>
+				<Text color={status.valid ? FIELD_VALID_COLOR : FIELD_INVALID_COLOR}>{status.label}</Text>
 			)}
 		</Box>
 	);
-}
+};
 
-function FileBrowser({
+const FileBrowser = ({
 	value,
 	onChange,
 	maxRows = 12,
@@ -122,7 +131,7 @@ function FileBrowser({
 	value: string;
 	onChange: (v: string) => void;
 	maxRows?: number;
-}) {
+}) => {
 	const initialDir = value ? path.dirname(path.resolve(value)) : process.cwd();
 	const [cwd, setCwd] = useState(initialDir);
 	const [highlightIdx, setHighlightIdx] = useState(0);
@@ -188,7 +197,7 @@ function FileBrowser({
 				return (
 					<Text
 						key={entry.name}
-						color={selected ? 'cyan' : entry.isDir ? 'blue' : undefined}
+						color={selected ? FIELD_HIGHLIGHT_COLOR : entry.isDir ? FIELD_DIR_COLOR : undefined}
 						bold={selected}
 						wrap="truncate"
 					>
@@ -200,15 +209,15 @@ function FileBrowser({
 			})}
 		</Box>
 	);
-}
+};
 
-function NumberStepper({
+const NumberStepper = ({
 	value,
 	onChange,
 }: {
 	value: string;
 	onChange: (v: string) => void;
-}) {
+}) => {
 	const num = Number.parseInt(value, 10) || 0;
 	useInput((_input, key) => {
 		if (key.upArrow) onChange(String(num + 1));
@@ -216,16 +225,16 @@ function NumberStepper({
 	});
 	return (
 		<Box gap={1}>
-			<Text color="cyan" bold>
+			<Text color={FIELD_HIGHLIGHT_COLOR} bold>
 				▲
 			</Text>
 			<Text bold>{String(num)}</Text>
-			<Text color="cyan" bold>
+			<Text color={FIELD_HIGHLIGHT_COLOR} bold>
 				▼
 			</Text>
 		</Box>
 	);
-}
+};
 
 export function FieldEditor({
 	fieldName,
@@ -281,20 +290,20 @@ export function FieldEditor({
 				<Text bold dimColor wrap="truncate">
 					{fieldName}
 				</Text>
-				{modeBadge && <Text color="yellow">[{modeBadge}]</Text>}
+				{modeBadge && <Text color={FIELD_MODE_BADGE_COLOR}>[{modeBadge}]</Text>}
 			</Box>
 
 			{isArrayBody &&
 				currentBodyItemIndex !== undefined &&
 				totalBodyItems !== undefined && (
-					<Text color="magenta">
+					<Text color={FIELD_ARRAY_BADGE_COLOR}>
 						Array item {currentBodyItemIndex + 1}/{totalBodyItems}
 					</Text>
 				)}
 			{isArrayParam &&
 				paramArrayItemIndex !== undefined &&
 				paramArrayItemCount !== undefined && (
-					<Text color="magenta">
+					<Text color={FIELD_ARRAY_BADGE_COLOR}>
 						Array item {paramArrayItemIndex + 1}/{paramArrayItemCount}
 					</Text>
 				)}
@@ -325,7 +334,7 @@ export function FieldEditor({
 						<TextInput value={value} onChange={onChange} />
 					)
 				) : (
-					<Text wrap="truncate" color={value ? 'green' : 'gray'}>
+					<Text wrap="truncate" color={value ? FIELD_VALUE_COLOR : 'gray'}>
 						{isFileField && value ? path.basename(value) : value || '(empty)'}
 					</Text>
 				)}

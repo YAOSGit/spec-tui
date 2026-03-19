@@ -83,6 +83,12 @@ function makeMockProviders(
 			toggleHelp: vi.fn(),
 			openFakerPicker: vi.fn(),
 			closeFakerPicker: vi.fn(),
+			activeOverlay: 'none',
+			setActiveOverlay: vi.fn(),
+			confirmation: null,
+			requestConfirmation: vi.fn(),
+			clearConfirmation: vi.fn(),
+			cycleFocus: vi.fn(),
 			...overrides.ui,
 		},
 		requestConfig: {
@@ -94,7 +100,7 @@ function makeMockProviders(
 			authConfig: { type: 'none' },
 			setAuthConfig: vi.fn(),
 		},
-		quit: vi.fn(),
+		onQuit: vi.fn(),
 	};
 }
 
@@ -139,10 +145,10 @@ describe('closeConfigCommand', () => {
 });
 
 describe('openConfigCommand', () => {
-	it('is enabled when not showing help and not in config pane', () => {
+	it('is enabled when overlay is none and not in config pane', () => {
 		const p = makeMockProviders({
 			navigation: { activePane: 'navigator' },
-			ui: { showHelp: false },
+			ui: { activeOverlay: 'none' },
 		});
 		expect(openConfigCommand.isEnabled(p)).toBe(true);
 	});
@@ -150,15 +156,15 @@ describe('openConfigCommand', () => {
 	it('is disabled when already in config pane', () => {
 		const p = makeMockProviders({
 			navigation: { activePane: 'config' },
-			ui: { showHelp: false },
+			ui: { activeOverlay: 'none' },
 		});
 		expect(openConfigCommand.isEnabled(p)).toBe(false);
 	});
 
-	it('is disabled when showing help', () => {
+	it('is disabled when an overlay is active', () => {
 		const p = makeMockProviders({
 			navigation: { activePane: 'navigator' },
-			ui: { showHelp: true },
+			ui: { activeOverlay: 'help' },
 		});
 		expect(openConfigCommand.isEnabled(p)).toBe(false);
 	});

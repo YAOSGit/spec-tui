@@ -42,10 +42,6 @@
 - [Schema Validation](#schema-validation)
 - [Mock Export](#mock-export)
 
-### Integrations
-
-- [Ecosystem Integrations](#ecosystem-integrations)
-
 ### Development
 
 - [Available Scripts](#available-scripts)
@@ -62,7 +58,6 @@
 
 - **Terminal-Native**: No browser needed — explore APIs from the same terminal where you code
 - **Schema-Driven Validation**: Zod validators generated from JSON Schema catch input errors before sending
-- **Ecosystem Bridges**: Integrates with env-lock (auth), mesh-sync (auto-refresh), and run-ctx (base URLs)
 - **Mock Generation**: Export any API response as a typed TypeScript mock file for unit tests
 
 ---
@@ -119,6 +114,8 @@ spec-tui --help, -h                Show help message
 spec-tui --version, -v             Show version information
 ```
 
+> **Note:** If the OpenAPI spec has no `servers` array, the base URL falls back to `http://localhost`. Use `-b` to override.
+
 ### Examples
 
 ```bash
@@ -152,7 +149,6 @@ The TUI is organized into three panes:
 
 - Dynamic input forms auto-generated from OpenAPI parameters and request body schemas
 - Real-time Zod validation against the spec before sending
-- Integration with env-lock for auto-injecting auth headers
 
 ### Response & Schema Viewer (Right)
 
@@ -192,16 +188,6 @@ export const listPetsMock = [
   { "id": 1, "name": "Rex" }
 ] as const;
 ```
-
----
-
-## Ecosystem Integrations
-
-| Integration | Env Variable | Description |
-|-------------|-------------|-------------|
-| **env-lock** | `ENV_LOCK_TOKEN` | Auto-injects Bearer token into request headers |
-| **mesh-sync** | — | Detects when spec file is managed by mesh-sync for auto-refresh |
-| **run-ctx** | `SPEC_TUI_BASE_URL` | Overrides base URL for context-aware environments |
 
 ---
 
@@ -284,6 +270,7 @@ spec-tui/
 │   │   ├── StatusBar/          # Top bar — spec info
 │   │   ├── ResponseViewer/     # Right pane — response display
 │   │   └── SchemaViewer/       # Right pane — schema display
+│   ├── hooks/                  # Custom React hooks
 │   ├── parser/                 # OpenAPI parsing
 │   │   ├── openapi/            # Spec → Endpoint[] extraction
 │   │   └── schemaToZod/        # JSON Schema → Zod validators

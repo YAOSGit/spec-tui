@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const CLI_PATH = path.resolve(__dirname, '../dist/cli.js');
+const CLI_PATH = path.resolve(__dirname, '../dist/tui.js');
 const PETSTORE_YAML = path.resolve(
 	__dirname,
 	'../examples/basic/petstore.yaml',
@@ -40,20 +40,20 @@ describe('CLI flags E2E', () => {
 			expect(stdout.trim()).toMatch(/\d+\.\d+\.\d+/);
 		});
 
-		it('prints version with short flag -v', () => {
-			const { stdout, exitCode } = run(['-v']);
+		it('prints version with short flag -V', () => {
+			const { stdout, exitCode } = run(['-V']);
 			expect(exitCode).toBe(0);
 			expect(stdout.trim()).toMatch(/\d+\.\d+\.\d+/);
 		});
 
 		it('version output includes Node.js info', () => {
 			const { stdout } = run(['--version']);
-			expect(stdout).toContain('Node.js');
+			expect(stdout).toContain('node/');
 		});
 
 		it('version output includes platform info', () => {
 			const { stdout } = run(['--version']);
-			expect(stdout).toContain('Platform:');
+			expect(stdout).toContain(process.platform);
 		});
 	});
 

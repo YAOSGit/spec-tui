@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-const CLI_PATH = path.resolve(__dirname, '../dist/cli.js');
+const CLI_PATH = path.resolve(__dirname, '../dist/tui.js');
 
 const run = (
 	args: string[],

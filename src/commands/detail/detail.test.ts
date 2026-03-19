@@ -158,6 +158,12 @@ function makeMockProviders(
 		toggleHelp: vi.fn(),
 		openFakerPicker: vi.fn(),
 		closeFakerPicker: vi.fn(),
+		activeOverlay: 'none',
+		setActiveOverlay: vi.fn(),
+		confirmation: null,
+		requestConfirmation: vi.fn(),
+		clearConfirmation: vi.fn(),
+		cycleFocus: vi.fn(),
 		...overrides.ui,
 	};
 
@@ -177,7 +183,7 @@ function makeMockProviders(
 		spec,
 		ui,
 		requestConfig,
-		quit: vi.fn(),
+		onQuit: vi.fn(),
 	};
 }
 

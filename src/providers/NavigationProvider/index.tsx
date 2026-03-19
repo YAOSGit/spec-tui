@@ -1,12 +1,12 @@
 import type React from 'react';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useMemo } from 'react';
 import { useNavigationState } from '../../hooks/useNavigationState/index.js';
 import type {
 	NavigationContextValue,
 	NavigationProviderProps,
 } from './NavigationProvider.types.js';
 
-const NavigationContext = createContext<NavigationContextValue | null>(null);
+export const NavigationContext = createContext<NavigationContextValue | null>(null);
 
 export const NavigationProvider: React.FC<NavigationProviderProps> = ({
 	children,
@@ -22,10 +22,4 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
 	);
 };
 
-export const useNavigation = (): NavigationContextValue => {
-	const context = useContext(NavigationContext);
-	if (!context) {
-		throw new Error('useNavigation must be used within a NavigationProvider');
-	}
-	return context;
-};
+export { useNavigation } from '../../hooks/useNavigation/index.js';

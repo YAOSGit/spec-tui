@@ -13,8 +13,11 @@ export function buildUrl(
 		resolvedPath = resolvedPath.replace(`{${key}}`, encodeURIComponent(value));
 	}
 
+	// If no baseUrl, fall back to localhost
+	const effectiveBase = baseUrl || 'http://localhost';
+
 	// Concatenate baseUrl path with the endpoint path to preserve /api/v3 etc.
-	const base = new URL(baseUrl);
+	const base = new URL(effectiveBase);
 	const basePath = base.pathname.replace(/\/+$/, '');
 	base.pathname = basePath + resolvedPath;
 	const url = base;

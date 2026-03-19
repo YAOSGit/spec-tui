@@ -14,7 +14,7 @@ interface AuthPreset {
 	fromSpec: boolean;
 }
 
-function buildPresets(schemes: SecurityScheme[]): AuthPreset[] {
+const buildPresets = (schemes: SecurityScheme[]): AuthPreset[] => {
 	const presets: AuthPreset[] = [
 		{ type: 'none', label: 'None', fromSpec: false },
 	];
@@ -55,7 +55,7 @@ function buildPresets(schemes: SecurityScheme[]): AuthPreset[] {
 		presets.push({ type: 'apiKey', label: 'API Key', fromSpec: false });
 
 	return presets;
-}
+};
 
 export function ConfigScreen({
 	headers,

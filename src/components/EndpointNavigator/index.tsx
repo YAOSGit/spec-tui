@@ -1,25 +1,26 @@
 import { Box, Text } from 'ink';
 import { useMemo } from 'react';
 import type { Endpoint } from '../../types/Endpoint/index.js';
-import { METHOD_COLORS } from '../../utils/methodColors/index.js';
+import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
+import { theme } from '../../theme.js';
 import type { EndpointNavigatorProps } from './EndpointNavigator.types.js';
 
 type DisplayRow =
 	| { type: 'group'; label: string }
 	| { type: 'endpoint'; flatIndex: number; endpoint: Endpoint };
 
-function getGroupKey(path: string): string {
+const getGroupKey = (path: string): string => {
 	const segments = path.split('/').filter(Boolean);
 	return segments[0] ? `/${segments[0]}` : '/';
-}
+};
 
-function buildDisplayRows(endpoints: Endpoint[]): DisplayRow[] {
+const buildDisplayRows = (endpoints: Endpoint[]): DisplayRow[] => {
 	const rows: DisplayRow[] = [];
 	let lastGroup = '';
 
 	for (let i = 0; i < endpoints.length; i++) {
-		// biome-ignore lint/style/noNonNullAssertion: index is within array bounds
-		const ep = endpoints[i]!;
+		const ep = endpoints[i];
+		if (!ep) continue;
 		const group = getGroupKey(ep.path);
 		if (group !== lastGroup) {
 			rows.push({ type: 'group', label: group });
@@ -29,7 +30,7 @@ function buildDisplayRows(endpoints: Endpoint[]): DisplayRow[] {
 	}
 
 	return rows;
-}
+};
 
 export function EndpointNavigator({
 	endpoints,
@@ -60,7 +61,6 @@ export function EndpointNavigator({
 			flexDirection="column"
 			borderStyle="single"
 			borderColor="gray"
-			width="40%"
 			height={height}
 		>
 			<Box paddingX={1}>
@@ -78,7 +78,7 @@ export function EndpointNavigator({
 				}
 
 				const isSelected = row.flatIndex === selectedIndex;
-				const methodColor = METHOD_COLORS[row.endpoint.method] ?? 'white';
+				const methodColor = METHOD_COLORS[row.endpoint.method.toUpperCase()] ?? 'white';
 				const nonJsonTypes = [
 					...row.endpoint.contentTypes.requestContentTypes,
 					...Object.values(
@@ -90,8 +90,8 @@ export function EndpointNavigator({
 					.slice(0, 2);
 				return (
 					<Box key={`${row.endpoint.method}-${row.endpoint.path}`} paddingX={1}>
-						<Text wrap="truncate" inverse={isSelected}>
-							{'  '}
+						<Text wrap="truncate">
+							{isSelected ? <Text color={theme.brand}>{'\u25b8 '}</Text> : '  '}
 							<Text color={methodColor} bold>
 								{row.endpoint.method.toUpperCase().padEnd(7)}
 							</Text>

@@ -5,7 +5,7 @@ import { extractBodySchemaFields } from '../../utils/bodySchema/index.js';
 import { schemaSummary } from '../../utils/schemaToType/index.js';
 import type { FieldItem, FieldListProps } from './FieldList.types.js';
 
-function buildFieldItems(
+const buildFieldItems = (
 	endpoint: FieldListProps['endpoint'],
 	paramValues: Record<string, string>,
 	bodyValue: string,
@@ -14,7 +14,7 @@ function buildFieldItems(
 	paramArrayItems?: Record<string, string[]>,
 	currentParamArrayIndices?: Record<string, number>,
 	paramArrayRawMode?: Record<string, boolean>,
-): FieldItem[] {
+): FieldItem[] => {
 	const items: FieldItem[] = endpoint.parameters.map((p) => {
 		const isArray = p.schema?.type === 'array';
 		const isRaw = paramArrayRawMode?.[p.name] ?? false;
@@ -75,7 +75,7 @@ function buildFieldItems(
 	}
 
 	return items;
-}
+};
 
 export function FieldList({
 	endpoint,

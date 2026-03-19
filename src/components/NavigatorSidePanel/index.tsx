@@ -1,6 +1,5 @@
 import { Box, Text } from 'ink';
-import { METHOD_COLORS } from '../../utils/methodColors/index.js';
-import { statusColor } from '../../utils/statusColor/index.js';
+import { METHOD_COLORS, statusColor } from '@yaos-git/toolkit/tui/http';
 import type { NavigatorSidePanelProps } from './NavigatorSidePanel.types.js';
 
 export function NavigatorSidePanel({
@@ -19,7 +18,6 @@ export function NavigatorSidePanel({
 			flexDirection="column"
 			borderStyle="single"
 			borderColor="gray"
-			width="60%"
 			height={height}
 			paddingX={1}
 		>
@@ -53,7 +51,7 @@ export function NavigatorSidePanel({
 					<Box flexDirection="column">
 						<Box gap={1}>
 							<Text
-								color={METHOD_COLORS[selectedEndpoint.method] ?? 'white'}
+								color={METHOD_COLORS[selectedEndpoint.method.toUpperCase()] ?? 'white'}
 								bold
 							>
 								{selectedEndpoint.method.toUpperCase()}
@@ -103,7 +101,7 @@ export function NavigatorSidePanel({
 						return (
 							<Box key={entry.id} gap={1}>
 								<Text
-									color={METHOD_COLORS[entry.method.toLowerCase()] ?? 'white'}
+									color={METHOD_COLORS[entry.method.toUpperCase()] ?? 'white'}
 									bold
 								>
 									{entry.method.toUpperCase().padEnd(7)}

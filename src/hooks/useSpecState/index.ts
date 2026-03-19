@@ -3,7 +3,16 @@ import { parseSpec } from '../../parser/openapi/index.js';
 import type { Endpoint } from '../../types/Endpoint/index.js';
 import type { SecurityScheme } from '../../types/SecurityScheme/index.js';
 
-export const useSpecState = (specSource: string) => {
+type UseSpecStateReturn = {
+	endpoints: Endpoint[];
+	specTitle: string;
+	baseUrl: string;
+	securitySchemes: SecurityScheme[];
+	loading: boolean;
+	error: string | null;
+};
+
+export const useSpecState = (specSource: string): UseSpecStateReturn => {
 	const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
 	const [specTitle, setSpecTitle] = useState('');
 	const [baseUrl, setBaseUrl] = useState('');

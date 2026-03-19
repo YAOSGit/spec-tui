@@ -1,20 +1,103 @@
+import { createCommandsProvider } from '@yaos-git/toolkit/tui/commands';
+import type { PendingConfirmation } from '@yaos-git/toolkit/types';
 import type { Key } from 'ink';
 import type React from 'react';
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import { createContext, useCallback, useMemo, useRef, useState } from 'react';
 import type { VisibleCommand } from '../../types/VisibleCommand/index.js';
-import { useNavigation } from '../NavigationProvider/index.js';
-import { useRequestConfig } from '../RequestConfigProvider/index.js';
-import { useSpec } from '../SpecProvider/index.js';
-import { useUI } from '../UIStateProvider/index.js';
-import { COMMANDS } from './CommandsProvider.consts.js';
+import { useNavigation } from '../../hooks/useNavigation/index.js';
+import { useRequestConfig } from '../../hooks/useRequestConfig/index.js';
+import { useSpec } from '../../hooks/useSpec/index.js';
+import { useUI } from '../../hooks/useUI/index.js';
+import { GUARDED_PROJECT_COMMANDS } from './CommandsProvider.consts.js';
 import type {
-	CommandProviders,
+	BridgedUI,
 	CommandsContextValue,
 	CommandsProviderProps,
+	SpecTuiDeps,
 } from './CommandsProvider.types.js';
 import { isKeyMatch } from './CommandsProvider.utils.js';
 
-const CommandsContext = createContext<CommandsContextValue | null>(null);
+// ---------------------------------------------------------------------------
+// Use createCommandsProvider to get the merged COMMANDS list (project +
+// shared commands like help, quit, scroll, cycleFocus).
+// ---------------------------------------------------------------------------
+const toolkit = createCommandsProvider<SpecTuiDeps>(
+	GUARDED_PROJECT_COMMANDS,
+);
+
+/** Full command list including toolkit-provided shared commands. */
+export const COMMANDS = toolkit.COMMANDS;
+
+// ---------------------------------------------------------------------------
+// Thin compatibility wrapper
+// ---------------------------------------------------------------------------
+// spec-tui's app.tsx calls `commands.handleInput(input, key)` from its own
+// `useInput` handler.  The toolkit's provider wires `useInput` internally,
+// but we need the explicit `handleInput` entry-point so the app can gate
+// input (e.g. skip during save-mode / faker picker).
+//
+// We therefore keep our own React context that mirrors the old API while
+// delegating to the toolkit-generated COMMANDS array.
+// ---------------------------------------------------------------------------
+
+export const CommandsContext = createContext<CommandsContextValue | null>(null);
+
+/**
+ * Bridge spec-tui's boolean-flag UI state into the `OverlayState`
+ * interface required by `BaseDeps`.
+ */
+function useBridgedUI(): BridgedUI {
+	const ui = useUI();
+	const [confirmation, setConfirmation] = useState<PendingConfirmation | null>(null);
+
+	const activeOverlay = useMemo<string>(() => {
+		if (confirmation) return 'confirmation';
+		if (ui.showHelp) return 'help';
+		if (ui.showFakerPicker) return 'faker';
+		return 'none';
+	}, [ui.showHelp, ui.showFakerPicker, confirmation]);
+
+	const setActiveOverlay = useCallback(
+		(overlay: string) => {
+			// Close everything first
+			if (ui.showHelp) ui.closeHelp();
+			if (ui.showFakerPicker) ui.closeFakerPicker();
+			setConfirmation(null);
+
+			// Open the requested overlay
+			if (overlay === 'help') ui.openHelp();
+			else if (overlay === 'faker') ui.openFakerPicker();
+		},
+		[ui],
+	);
+
+	const requestConfirmation = useCallback(
+		(message: string, onConfirm: () => void) => {
+			setConfirmation({ message, onConfirm });
+		},
+		[],
+	);
+
+	const clearConfirmation = useCallback(() => {
+		setConfirmation(null);
+	}, []);
+
+	return useMemo(
+		() => ({
+			...ui,
+			activeOverlay,
+			setActiveOverlay,
+			confirmation,
+			requestConfirmation,
+			clearConfirmation,
+			cycleFocus: () => {},
+		}),
+		[ui, activeOverlay, setActiveOverlay, confirmation, requestConfirmation, clearConfirmation],
+	);
+}
+
+const CONFIRM_YES = [{ textKey: 'y' }, { specialKey: 'return' }];
+const CONFIRM_NO = [{ textKey: 'n' }, { specialKey: 'escape' }];
 
 export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 	children,
@@ -22,19 +105,44 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 }) => {
 	const navigation = useNavigation();
 	const spec = useSpec();
-	const ui = useUI();
+	const bridgedUI = useBridgedUI();
 	const requestConfig = useRequestConfig();
 
-	const providers: CommandProviders = useMemo(
-		() => ({ navigation, spec, ui, requestConfig, quit: onQuit }),
-		[navigation, spec, ui, requestConfig, onQuit],
+	const deps: SpecTuiDeps = useMemo(
+		() => ({
+			navigation,
+			spec,
+			ui: bridgedUI,
+			requestConfig,
+			onQuit,
+		}),
+		[navigation, spec, bridgedUI, requestConfig, onQuit],
 	);
+
+	const pendingCommandRef = useRef<(typeof COMMANDS)[number] | null>(null);
 
 	const handleInput = useCallback(
 		(input: string, key: Key) => {
+			// Confirmation mode: y/Enter/same-key confirms, n/Esc cancels
+			if (bridgedUI.confirmation) {
+				if (
+					isKeyMatch(key, input, CONFIRM_YES) ||
+					(pendingCommandRef.current &&
+						isKeyMatch(key, input, pendingCommandRef.current.keys))
+				) {
+					bridgedUI.confirmation.onConfirm();
+					bridgedUI.clearConfirmation();
+					pendingCommandRef.current = null;
+				} else if (isKeyMatch(key, input, CONFIRM_NO)) {
+					bridgedUI.clearConfirmation();
+					pendingCommandRef.current = null;
+				}
+				return;
+			}
+
+			// Global guard: skip when overlay is active or config pane owns input
 			if (
-				ui.showHelp ||
-				ui.showFakerPicker ||
+				bridgedUI.activeOverlay !== 'none' ||
 				navigation.activePane === 'config'
 			)
 				return;
@@ -42,14 +150,25 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 			for (const command of COMMANDS) {
 				if (
 					isKeyMatch(key, input, command.keys) &&
-					command.isEnabled(providers)
+					command.isEnabled(deps)
 				) {
-					command.execute(providers);
+					if (command.needsConfirmation?.(deps)) {
+						const message =
+							typeof command.confirmMessage === 'function'
+								? command.confirmMessage(deps)
+								: (command.confirmMessage ?? 'Are you sure?');
+						pendingCommandRef.current = command;
+						bridgedUI.requestConfirmation(message, () =>
+							command.execute(deps),
+						);
+						return;
+					}
+					command.execute(deps);
 					return;
 				}
 			}
 		},
-		[providers, ui.showHelp, ui.showFakerPicker, navigation.activePane],
+		[deps, bridgedUI, navigation.activePane],
 	);
 
 	const getVisibleCommands = useCallback((): VisibleCommand[] => {
@@ -61,7 +180,7 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 			if (command.footer === 'hidden') continue;
 
 			const displayKey =
-				command.displayKey ??
+				command.displayKey ||
 				command.keys
 					.map((b) => b.textKey ?? b.specialKey ?? '')
 					.filter(Boolean)
@@ -70,7 +189,7 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 			if (seen.has(dedupeKey)) continue;
 			seen.add(dedupeKey);
 
-			if (!command.isEnabled(providers)) continue;
+			if (!command.isEnabled(deps)) continue;
 
 			const entry: VisibleCommand = {
 				displayKey,
@@ -93,11 +212,11 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 				(a, b) => (a.footerOrder ?? 999) - (b.footerOrder ?? 999),
 			),
 		];
-	}, [providers]);
+	}, [deps]);
 
 	const value: CommandsContextValue = useMemo(
-		() => ({ handleInput, getVisibleCommands }),
-		[handleInput, getVisibleCommands],
+		() => ({ handleInput, getVisibleCommands, confirmation: bridgedUI.confirmation, commands: COMMANDS, deps }),
+		[handleInput, getVisibleCommands, bridgedUI.confirmation, deps],
 	);
 
 	return (
@@ -107,10 +226,4 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 	);
 };
 
-export const useCommands = (): CommandsContextValue => {
-	const context = useContext(CommandsContext);
-	if (!context) {
-		throw new Error('useCommands must be used within a CommandsProvider');
-	}
-	return context;
-};
+export { useCommands } from '../../hooks/useCommands/index.js';

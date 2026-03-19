@@ -1,20 +1,19 @@
 import * as fs from 'node:fs';
 import { Box, Text, useInput, useStdout } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
+import { SplitPane, StatusIcon, TUILayout } from '@yaos-git/toolkit/tui/components';
+import { theme } from '../theme.js';
 import { ConfigScreen } from '../components/ConfigScreen/index.js';
 import { EndpointDetail } from '../components/EndpointDetail/index.js';
 import { EndpointNavigator } from '../components/EndpointNavigator/index.js';
 import { FakerPicker } from '../components/FakerPicker/index.js';
-import type { ContextHint } from '../components/Footer/Footer.types.js';
-import { Footer } from '../components/Footer/index.js';
-import { HelpMenu } from '../components/HelpMenu/index.js';
 import { NavigatorSidePanel } from '../components/NavigatorSidePanel/index.js';
 import { StatusBar } from '../components/StatusBar/index.js';
-import { useCommands } from '../providers/CommandsProvider/index.js';
-import { useNavigation } from '../providers/NavigationProvider/index.js';
-import { useRequestConfig } from '../providers/RequestConfigProvider/index.js';
-import { useSpec } from '../providers/SpecProvider/index.js';
-import { useUI } from '../providers/UIStateProvider/index.js';
+import { useCommands } from '../hooks/useCommands/index.js';
+import { useNavigation } from '../hooks/useNavigation/index.js';
+import { useRequestConfig } from '../hooks/useRequestConfig/index.js';
+import { useSpec } from '../hooks/useSpec/index.js';
+import { useUI } from '../hooks/useUI/index.js';
 import type { ResponseData } from '../types/ResponseData/index.js';
 import type { SentRequest } from '../types/SentRequest/index.js';
 import {
@@ -30,6 +29,9 @@ import type { FakerCategory } from '../utils/faker/faker.consts.js';
 import { generateValue } from '../utils/faker/index.js';
 import { buildRequestHeaders } from '../utils/headers/index.js';
 import { buildUrl, executeRequest } from '../utils/request/index.js';
+import { HELP_SECTION_COLORS } from './app.consts.js';
+
+const HELP_TITLE = 'YAOSGit spec - Keyboard Shortcuts';
 
 export function AppContent() {
 	const { endpoints, specTitle, baseUrl, securitySchemes, loading, error } =
@@ -262,7 +264,8 @@ export function AppContent() {
 
 	if (loading) {
 		return (
-			<Box>
+			<Box gap={1}>
+				<StatusIcon status="running" />
 				<Text>Loading spec...</Text>
 			</Box>
 		);
@@ -271,44 +274,26 @@ export function AppContent() {
 	if (error) {
 		return (
 			<Box>
-				<Text color="red">Error: {error}</Text>
+				<Text color={theme.error}>Error: {error}</Text>
 			</Box>
 		);
 	}
 
-	if (ui.showHelp) {
-		return (
-			<Box flexDirection="column" borderStyle="round" borderColor="blue">
-				<HelpMenu onClose={ui.closeHelp} />
-			</Box>
-		);
-	}
-
-	if (ui.showFakerPicker) {
-		return (
-			<Box flexDirection="column" borderStyle="round" borderColor="blue">
-				<FakerPicker
-					onSelect={handleFakerSelect}
-					onCancel={ui.closeFakerPicker}
-				/>
-			</Box>
-		);
-	}
-
-	const visibleCommands = commands.getVisibleCommands();
-
-	const contextHints: ContextHint[] = [];
+	// Build context hints for footer
+	const contextHints: React.ReactNode[] = [];
 	if (nav.isEditing && nav.selectedEndpoint) {
 		const endpoint = nav.selectedEndpoint;
 		const idx = nav.selectedFieldIndex;
 		const paramCount = endpoint.parameters.length;
 
+		const hints: { displayKey: string; displayText: string }[] = [];
+
 		if (idx < paramCount) {
 			const param = endpoint.parameters[idx];
 			if (param?.schema?.type === 'boolean') {
-				contextHints.push({ displayKey: '← →', displayText: 'cycle' });
+				hints.push({ displayKey: '\u2190 \u2192', displayText: 'cycle' });
 			} else if (param?.schema?.type === 'integer') {
-				contextHints.push({ displayKey: '↑ ↓', displayText: 'step' });
+				hints.push({ displayKey: '\u2191 \u2193', displayText: 'step' });
 			}
 		} else if (endpoint.requestBody && nav.bodyEditMode === 'form') {
 			const fields = extractBodySchemaFields(endpoint.requestBody);
@@ -316,108 +301,90 @@ export function AppContent() {
 			if (field?.type === 'file') {
 				const mode = nav.fileInputMode[field.name] ?? 'browser';
 				if (mode === 'browser') {
-					contextHints.push(
-						{ displayKey: '↑ ↓', displayText: 'navigate' },
+					hints.push(
+						{ displayKey: '\u2191 \u2193', displayText: 'navigate' },
 						{ displayKey: 'Enter', displayText: 'select' },
 						{ displayKey: 'Bksp', displayText: 'up dir' },
 					);
 				}
 			} else if (field?.type === 'boolean') {
-				contextHints.push({ displayKey: '← →', displayText: 'cycle' });
+				hints.push({ displayKey: '\u2190 \u2192', displayText: 'cycle' });
 			} else if (field?.type === 'integer') {
-				contextHints.push({ displayKey: '↑ ↓', displayText: 'step' });
+				hints.push({ displayKey: '\u2191 \u2193', displayText: 'step' });
 			}
+		}
+
+		for (const hint of hints) {
+			contextHints.push(
+				<Text key={`${hint.displayKey}-${hint.displayText}`}>
+					<Text dimColor> {'\u2502'} </Text>
+					<Text bold>{hint.displayKey}</Text> {hint.displayText}
+				</Text>,
+			);
 		}
 	}
 
-	// Config view — full-screen page
+	// Determine page content based on active pane
+	let pageContent: React.ReactNode;
+
 	if (nav.activePane === 'config') {
-		return (
-			<Box flexDirection="column" borderStyle="round" borderColor="blue">
-				<StatusBar
-					specTitle={specTitle}
-					activePane={nav.activePane}
-					selectedEndpoint={nav.selectedEndpoint}
-					activeView={nav.activeView}
-				/>
-				<ConfigScreen
-					headers={globalHeaders}
-					onAddHeader={addHeader}
-					onRemoveHeader={removeHeader}
-					onUpdateHeader={updateHeader}
-					authConfig={authConfig}
-					onAuthChange={setAuthConfig}
-					securitySchemes={securitySchemes}
-					onClose={() => nav.setActivePane('navigator')}
-				/>
-				<Footer commands={visibleCommands} />
-			</Box>
-		);
-	}
-
-	// Detail view — full-screen page
-	if (nav.activePane === 'detail' && nav.selectedEndpoint) {
-		return (
-			<Box flexDirection="column" borderStyle="round" borderColor="blue">
-				<StatusBar
-					specTitle={specTitle}
-					activePane={nav.activePane}
-					selectedEndpoint={nav.selectedEndpoint}
-					activeView={nav.activeView}
-				/>
-				<EndpointDetail
-					endpoint={nav.selectedEndpoint}
-					paramValues={nav.paramValues}
-					bodyValue={nav.bodyValue}
-					selectedFieldIndex={nav.selectedFieldIndex}
-					isEditing={nav.isEditing}
-					activeView={nav.activeView}
-					onParamChange={nav.updateParamValue}
-					onBodyChange={nav.setBodyValue}
-					response={response}
-					sentRequest={sentRequest}
-					loading={requestLoading}
-					height={contentHeight}
-					bodyEditMode={nav.bodyEditMode}
-					bodyFieldValues={nav.bodyFieldValues}
-					onBodyFieldChange={nav.updateBodyFieldValue}
-					isArrayBody={
-						nav.selectedEndpoint.requestBody
-							? isArrayBody(nav.selectedEndpoint.requestBody)
-							: false
-					}
-					bodyArrayItems={nav.bodyArrayItems}
-					currentBodyItemIndex={nav.currentBodyItemIndex}
-					onBodyArrayFieldChange={nav.updateBodyArrayItemField}
-					paramArrayItems={nav.paramArrayItems}
-					currentParamArrayIndices={nav.currentParamArrayIndices}
-					onParamArrayChange={nav.updateParamArrayItem}
-					paramArrayRawMode={nav.paramArrayRawMode}
-					fileInputMode={nav.fileInputMode}
-					fieldEditorOverride={nav.fieldEditorOverride}
-					saveMode={ui.saveMode}
-					onSave={handleSaveResponse}
-					onCancelSave={() => {
-						ui.setSaveMode(false);
-						setSaveError(null);
-					}}
-					saveError={saveError}
-				/>
-				<Footer commands={visibleCommands} contextHints={contextHints} />
-			</Box>
-		);
-	}
-
-	// Navigator view — main screen with side panel
-	return (
-		<Box flexDirection="column" borderStyle="round" borderColor="blue">
-			<StatusBar
-				specTitle={specTitle}
-				activePane={nav.activePane}
-				selectedEndpoint={nav.selectedEndpoint}
-				activeView={nav.activeView}
+		pageContent = (
+			<ConfigScreen
+				headers={globalHeaders}
+				onAddHeader={addHeader}
+				onRemoveHeader={removeHeader}
+				onUpdateHeader={updateHeader}
+				authConfig={authConfig}
+				onAuthChange={setAuthConfig}
+				securitySchemes={securitySchemes}
+				onClose={() => nav.setActivePane('navigator')}
 			/>
-			<Box>
+		);
+	} else if (nav.activePane === 'detail' && nav.selectedEndpoint) {
+		pageContent = (
+			<EndpointDetail
+				endpoint={nav.selectedEndpoint}
+				paramValues={nav.paramValues}
+				bodyValue={nav.bodyValue}
+				selectedFieldIndex={nav.selectedFieldIndex}
+				isEditing={nav.isEditing}
+				activeView={nav.activeView}
+				onParamChange={nav.updateParamValue}
+				onBodyChange={nav.setBodyValue}
+				response={response}
+				sentRequest={sentRequest}
+				loading={requestLoading}
+				height={contentHeight}
+				bodyEditMode={nav.bodyEditMode}
+				bodyFieldValues={nav.bodyFieldValues}
+				onBodyFieldChange={nav.updateBodyFieldValue}
+				isArrayBody={
+					nav.selectedEndpoint.requestBody
+						? isArrayBody(nav.selectedEndpoint.requestBody)
+						: false
+				}
+				bodyArrayItems={nav.bodyArrayItems}
+				currentBodyItemIndex={nav.currentBodyItemIndex}
+				onBodyArrayFieldChange={nav.updateBodyArrayItemField}
+				paramArrayItems={nav.paramArrayItems}
+				currentParamArrayIndices={nav.currentParamArrayIndices}
+				onParamArrayChange={nav.updateParamArrayItem}
+				paramArrayRawMode={nav.paramArrayRawMode}
+				fileInputMode={nav.fileInputMode}
+				fieldEditorOverride={nav.fieldEditorOverride}
+				saveMode={ui.saveMode}
+				onSave={handleSaveResponse}
+				onCancelSave={() => {
+					ui.setSaveMode(false);
+					setSaveError(null);
+				}}
+				saveError={saveError}
+			/>
+		);
+	} else {
+		// Navigator view — split pane with side panel
+		pageContent = (
+			<SplitPane theme={theme} ratio={[40, 60]} borders={[false, false]}>
 				<EndpointNavigator
 					endpoints={endpoints}
 					selectedIndex={nav.selectedIndex}
@@ -431,8 +398,38 @@ export function AppContent() {
 					requestHistory={nav.requestHistory}
 					height={contentHeight}
 				/>
-			</Box>
-			<Footer commands={visibleCommands} />
-		</Box>
+			</SplitPane>
+		);
+	}
+
+	return (
+		<TUILayout
+			brand="spec"
+			theme={theme}
+			commands={commands.commands}
+			deps={commands.deps}
+			helpTitle={HELP_TITLE}
+			helpSectionColors={HELP_SECTION_COLORS}
+			overlays={{
+				faker: () => (
+					<FakerPicker
+						onSelect={handleFakerSelect}
+						onCancel={ui.closeFakerPicker}
+					/>
+				),
+			}}
+			header={
+				<StatusBar
+					specTitle={specTitle}
+					activePane={nav.activePane}
+					selectedEndpoint={nav.selectedEndpoint}
+					activeView={nav.activeView}
+				/>
+			}
+			statusBar={null}
+			footerChildren={contextHints.length > 0 ? contextHints : null}
+		>
+			{pageContent}
+		</TUILayout>
 	);
 }

@@ -9,7 +9,7 @@ import {
 	formatBadgeLabel,
 } from '../../utils/contentType/index.js';
 import { renderResponseBody } from '../../utils/responseRenderers/index.js';
-import { statusColor } from '../../utils/statusColor/index.js';
+import { statusColor } from '@yaos-git/toolkit/tui/http';
 import type { ResponseViewProps } from './ResponseView.types.js';
 
 export function parseSuggestedFilename(

@@ -12,12 +12,12 @@ export interface AppProvidersProps {
 	onQuit: () => void;
 }
 
-export function AppProviders({
+export const AppProviders: React.FC<AppProvidersProps> = ({
 	specSource,
 	baseUrl,
 	children,
 	onQuit,
-}: AppProvidersProps) {
+}) => {
 	return (
 		<SpecProvider specSource={specSource} baseUrlOverride={baseUrl}>
 			<NavigationProvider>
@@ -29,4 +29,4 @@ export function AppProviders({
 			</NavigationProvider>
 		</SpecProvider>
 	);
-}
+};

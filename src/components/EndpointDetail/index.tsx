@@ -5,7 +5,7 @@ import {
 	formatBadgeColor,
 	formatBadgeLabel,
 } from '../../utils/contentType/index.js';
-import { METHOD_COLORS } from '../../utils/methodColors/index.js';
+import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
 import { FieldEditor } from '../FieldEditor/index.js';
 import { buildFieldItems, FieldList } from '../FieldList/index.js';
 import { RequestPreview } from '../RequestPreview/index.js';
@@ -43,7 +43,7 @@ export function EndpointDetail({
 	onCancelSave,
 	saveError,
 }: EndpointDetailProps) {
-	const methodColor = METHOD_COLORS[endpoint.method] ?? 'white';
+	const methodColor = METHOD_COLORS[endpoint.method.toUpperCase()] ?? 'white';
 
 	const effectiveBodyFieldValues =
 		isArrayBody && bodyArrayItems && currentBodyItemIndex !== undefined

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('spec-tui E2E', () => {
-	const cliPath = path.resolve(__dirname, '../dist/cli.js');
+	const cliPath = path.resolve(__dirname, '../dist/tui.js');
 	const _petstorePath = path.resolve(
 		__dirname,
 		'../examples/basic/petstore.yaml',
