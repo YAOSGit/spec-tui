@@ -1,0 +1,264 @@
+openapi: "3.0.3"
+info:
+  title: Content-Type Test API
+  description: A test API that exercises every content type the TUI can detect and render
+  version: "1.0.0"
+servers:
+  - url: http://localhost:4567
+paths:
+  /data/json:
+    get:
+      summary: Returns JSON data
+      operationId: getJson
+      tags: [data]
+      responses:
+        "200":
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  active:
+                    type: boolean
+
+  /data/xml:
+    get:
+      summary: Returns XML data
+      operationId: getXml
+      tags: [data]
+      parameters:
+        - name: pretty
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: An XML document
+          content:
+            application/xml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: object
+
+  /data/html:
+    get:
+      summary: Returns an HTML page
+      operationId: getHtml
+      tags: [data]
+      responses:
+        "200":
+          description: An HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /data/csv:
+    get:
+      summary: Returns CSV data
+      operationId: getCsv
+      tags: [data]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: CSV rows
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /data/javascript:
+    get:
+      summary: Returns a JS snippet
+      operationId: getJs
+      tags: [data]
+      responses:
+        "200":
+          description: JavaScript source
+          content:
+            application/javascript:
+              schema:
+                type: string
+
+  /data/css:
+    get:
+      summary: Returns a CSS stylesheet
+      operationId: getCss
+      tags: [data]
+      responses:
+        "200":
+          description: CSS source
+          content:
+            text/css:
+              schema:
+                type: string
+
+  /save/report:
+    get:
+      summary: Download a text report
+      operationId: saveReport
+      tags: [save]
+      responses:
+        "200":
+          description: A plain text report (Content-Disposition attachment)
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /save/export:
+    get:
+      summary: Download a JSON user export
+      operationId: saveExport
+      tags: [save]
+      responses:
+        "200":
+          description: A JSON export file (Content-Disposition attachment)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exported_at:
+                    type: string
+                  users:
+                    type: array
+                    items:
+                      type: object
+                  total:
+                    type: integer
+
+  /save/image:
+    get:
+      summary: Download a PNG thumbnail
+      operationId: saveImage
+      tags: [save]
+      responses:
+        "200":
+          description: A PNG image (Content-Disposition attachment)
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+
+  /data/binary:
+    get:
+      summary: Returns binary data
+      operationId: getBinary
+      tags: [data]
+      responses:
+        "200":
+          description: Raw binary bytes
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /data/multi-format:
+    get:
+      summary: Supports JSON + XML + CSV responses
+      operationId: getMultiFormat
+      tags: [data]
+      parameters:
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [json, xml, csv]
+      responses:
+        "200":
+          description: Data in the requested format
+          content:
+            application/json:
+              schema:
+                type: object
+            application/xml:
+              schema:
+                type: string
+            text/csv:
+              schema:
+                type: string
+
+  /upload/avatar:
+    post:
+      summary: Upload user avatar (file field demo)
+      operationId: uploadAvatar
+      tags: [upload]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [username, avatar]
+              properties:
+                username:
+                  type: string
+                  description: Username for the avatar
+                avatar:
+                  type: string
+                  format: binary
+                  description: The avatar image file
+                description:
+                  type: string
+                  description: Optional caption
+      responses:
+        "200":
+          description: Upload result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+
+  /upload/documents:
+    post:
+      summary: Upload multiple documents
+      operationId: uploadDocuments
+      tags: [upload]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                mainFile:
+                  type: string
+                  format: binary
+                  description: Primary document
+                attachment:
+                  type: string
+                  format: binary
+                  description: Optional attachment
+      responses:
+        "201":
+          description: Documents uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+components: {}
