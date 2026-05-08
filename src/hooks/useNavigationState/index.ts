@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
 	BodyEditMode,
 	DetailView,
@@ -45,6 +45,32 @@ export const useNavigationState = (): NavigationContextValue => {
 		Record<string, boolean>
 	>({});
 
+	// Refs to avoid stale closures and nested setState
+	const currentParamArrayIndicesRef = useRef(currentParamArrayIndices);
+	useEffect(() => {
+		currentParamArrayIndicesRef.current = currentParamArrayIndices;
+	}, [currentParamArrayIndices]);
+
+	const currentBodyItemIndexRef = useRef(currentBodyItemIndex);
+	useEffect(() => {
+		currentBodyItemIndexRef.current = currentBodyItemIndex;
+	}, [currentBodyItemIndex]);
+
+	const bodyArrayItemsRef = useRef(bodyArrayItems);
+	useEffect(() => {
+		bodyArrayItemsRef.current = bodyArrayItems;
+	}, [bodyArrayItems]);
+
+	const paramArrayItemsRef = useRef(paramArrayItems);
+	useEffect(() => {
+		paramArrayItemsRef.current = paramArrayItems;
+	}, [paramArrayItems]);
+
+	const paramValuesRef = useRef(paramValues);
+	useEffect(() => {
+		paramValuesRef.current = paramValues;
+	}, [paramValues]);
+
 	const [fileInputMode, setFileInputMode] = useState<
 		Record<string, 'browser' | 'path'>
 	>({});
@@ -79,59 +105,49 @@ export const useNavigationState = (): NavigationContextValue => {
 	}, []);
 
 	const addBodyArrayItem = useCallback(() => {
-		setBodyArrayItems((prev) => {
-			const next = [...prev, {}];
-			setCurrentBodyItemIndex(next.length - 1);
-			return next;
-		});
+		setBodyArrayItems((prev) => [...prev, {}]);
+		setCurrentBodyItemIndex((prev) => prev + 1);
 	}, []);
 
 	const removeBodyArrayItem = useCallback((index: number) => {
-		setBodyArrayItems((prev) => {
-			if (prev.length <= 1) return prev;
-			const next = prev.filter((_, i) => i !== index);
-			setCurrentBodyItemIndex((cur) => Math.min(cur, next.length - 1));
-			return next;
-		});
+		const items = bodyArrayItemsRef.current;
+		if (items.length <= 1) return;
+		setBodyArrayItems(items.filter((_, i) => i !== index));
+		setCurrentBodyItemIndex((cur) => Math.min(cur, items.length - 2));
 	}, []);
 
 	const addParamArrayItem = useCallback((paramName: string) => {
-		setParamArrayItems((prev) => {
-			const items = prev[paramName] ?? [''];
-			const next = { ...prev, [paramName]: [...items, ''] };
-			setCurrentParamArrayIndices((ci) => ({
-				...ci,
-				[paramName]: items.length,
-			}));
-			return next;
-		});
+		const items = paramArrayItemsRef.current[paramName] ?? [''];
+		setParamArrayItems((prev) => ({
+			...prev,
+			[paramName]: [...(prev[paramName] ?? ['']), ''],
+		}));
+		setCurrentParamArrayIndices((ci) => ({
+			...ci,
+			[paramName]: items.length,
+		}));
 	}, []);
 
 	const removeParamArrayItem = useCallback((paramName: string) => {
-		setCurrentParamArrayIndices((ci) => {
-			const cur = ci[paramName] ?? 0;
-			setParamArrayItems((prev) => {
-				const items = prev[paramName] ?? [''];
-				if (items.length <= 1) return prev;
-				return {
-					...prev,
-					[paramName]: items.filter((_, i) => i !== cur),
-				};
-			});
-			return { ...ci, [paramName]: Math.min(cur, Math.max(0, cur - 1)) };
+		const cur = currentParamArrayIndicesRef.current[paramName] ?? 0;
+		setParamArrayItems((prev) => {
+			const items = prev[paramName] ?? [''];
+			if (items.length <= 1) return prev;
+			return { ...prev, [paramName]: items.filter((_, i) => i !== cur) };
 		});
+		setCurrentParamArrayIndices((ci) => ({
+			...ci,
+			[paramName]: Math.min(cur, Math.max(0, (ci[paramName] ?? 0) - 1)),
+		}));
 	}, []);
 
 	const updateParamArrayItem = useCallback(
 		(paramName: string, value: string) => {
-			setCurrentParamArrayIndices((ci) => {
-				const idx = ci[paramName] ?? 0;
-				setParamArrayItems((prev) => {
-					const items = [...(prev[paramName] ?? [''])];
-					items[idx] = value;
-					return { ...prev, [paramName]: items };
-				});
-				return ci;
+			const idx = currentParamArrayIndicesRef.current[paramName] ?? 0;
+			setParamArrayItems((prev) => {
+				const items = [...(prev[paramName] ?? [''])];
+				items[idx] = value;
+				return { ...prev, [paramName]: items };
 			});
 		},
 		[],
@@ -143,41 +159,37 @@ export const useNavigationState = (): NavigationContextValue => {
 
 	const toggleParamArrayRawMode = useCallback(
 		(paramName: string) => {
-			setParamArrayRawMode((prev) => {
-				const isRaw = prev[paramName] ?? false;
-				if (!isRaw) {
-					// Multi-item → raw: join items into comma-separated paramValues
-					const items = paramArrayItems[paramName] ?? [''];
-					const csv = items.filter((s) => s !== '').join(', ');
-					setParamValues((pv) => ({ ...pv, [paramName]: csv }));
-				} else {
-					// Raw → multi-item: split paramValues into array items
-					const csv = paramValues[paramName] ?? '';
-					const items = csv
-						.split(',')
-						.map((s) => s.trim())
-						.filter((s) => s !== '');
-					setParamArrayItems((pa) => ({
-						...pa,
-						[paramName]: items.length > 0 ? items : [''],
-					}));
-					setCurrentParamArrayIndices((ci) => ({ ...ci, [paramName]: 0 }));
-				}
-				return { ...prev, [paramName]: !isRaw };
-			});
+			const isRaw = paramArrayRawMode[paramName] ?? false;
+			if (!isRaw) {
+				// Multi-item → raw: join items into comma-separated paramValues
+				const items = paramArrayItemsRef.current[paramName] ?? [''];
+				const csv = items.filter((s) => s !== '').join(', ');
+				setParamValues((pv) => ({ ...pv, [paramName]: csv }));
+			} else {
+				// Raw → multi-item: split paramValues into array items
+				const csv = paramValuesRef.current[paramName] ?? '';
+				const items = csv
+					.split(',')
+					.map((s) => s.trim())
+					.filter((s) => s !== '');
+				setParamArrayItems((pa) => ({
+					...pa,
+					[paramName]: items.length > 0 ? items : [''],
+				}));
+				setCurrentParamArrayIndices((ci) => ({ ...ci, [paramName]: 0 }));
+			}
+			setParamArrayRawMode((prev) => ({ ...prev, [paramName]: !isRaw }));
 		},
-		[paramArrayItems, paramValues],
+		[paramArrayRawMode],
 	);
 
 	const updateBodyArrayItemField = useCallback(
 		(fieldName: string, value: string) => {
-			setCurrentBodyItemIndex((curIdx) => {
-				setBodyArrayItems((prev) => {
-					const updated = [...prev];
-					updated[curIdx] = { ...updated[curIdx], [fieldName]: value };
-					return updated;
-				});
-				return curIdx;
+			const curIdx = currentBodyItemIndexRef.current;
+			setBodyArrayItems((prev) => {
+				const updated = [...prev];
+				updated[curIdx] = { ...updated[curIdx], [fieldName]: value };
+				return updated;
 			});
 		},
 		[],

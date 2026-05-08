@@ -79,8 +79,7 @@ function withOverlayGuard(commands: Command[]): Command[] {
 		const originalIsEnabled = cmd.isEnabled;
 		return {
 			...cmd,
-			isEnabled: (p) =>
-				p.ui.activeOverlay === 'none' && originalIsEnabled(p),
+			isEnabled: (p) => p.ui.activeOverlay === 'none' && originalIsEnabled(p),
 		} satisfies Command;
 	});
 }

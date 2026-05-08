@@ -1,8 +1,8 @@
+import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
 import { Box, Text } from 'ink';
 import { useMemo } from 'react';
-import type { Endpoint } from '../../types/Endpoint/index.js';
-import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
 import { theme } from '../../theme.js';
+import type { Endpoint } from '../../types/Endpoint/index.js';
 import type { EndpointNavigatorProps } from './EndpointNavigator.types.js';
 
 type DisplayRow =
@@ -78,7 +78,8 @@ export function EndpointNavigator({
 				}
 
 				const isSelected = row.flatIndex === selectedIndex;
-				const methodColor = METHOD_COLORS[row.endpoint.method.toUpperCase()] ?? 'white';
+				const methodColor =
+					METHOD_COLORS[row.endpoint.method.toUpperCase()] ?? 'white';
 				const nonJsonTypes = [
 					...row.endpoint.contentTypes.requestContentTypes,
 					...Object.values(

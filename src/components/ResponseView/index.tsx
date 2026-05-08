@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { statusColor } from '@yaos-git/toolkit/tui/http';
 import { Box, Text, useInput } from 'ink';
 import TextInput from 'ink-text-input';
 import { useEffect, useMemo, useState } from 'react';
@@ -9,7 +10,6 @@ import {
 	formatBadgeLabel,
 } from '../../utils/contentType/index.js';
 import { renderResponseBody } from '../../utils/responseRenderers/index.js';
-import { statusColor } from '@yaos-git/toolkit/tui/http';
 import type { ResponseViewProps } from './ResponseView.types.js';
 
 export function parseSuggestedFilename(

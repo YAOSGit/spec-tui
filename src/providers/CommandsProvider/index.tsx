@@ -3,11 +3,11 @@ import type { PendingConfirmation } from '@yaos-git/toolkit/types';
 import type { Key } from 'ink';
 import type React from 'react';
 import { createContext, useCallback, useMemo, useRef, useState } from 'react';
-import type { VisibleCommand } from '../../types/VisibleCommand/index.js';
 import { useNavigation } from '../../hooks/useNavigation/index.js';
 import { useRequestConfig } from '../../hooks/useRequestConfig/index.js';
 import { useSpec } from '../../hooks/useSpec/index.js';
 import { useUI } from '../../hooks/useUI/index.js';
+import type { VisibleCommand } from '../../types/VisibleCommand/index.js';
 import { GUARDED_PROJECT_COMMANDS } from './CommandsProvider.consts.js';
 import type {
 	BridgedUI,
@@ -21,9 +21,7 @@ import { isKeyMatch } from './CommandsProvider.utils.js';
 // Use createCommandsProvider to get the merged COMMANDS list (project +
 // shared commands like help, quit, scroll, cycleFocus).
 // ---------------------------------------------------------------------------
-const toolkit = createCommandsProvider<SpecTuiDeps>(
-	GUARDED_PROJECT_COMMANDS,
-);
+const toolkit = createCommandsProvider<SpecTuiDeps>(GUARDED_PROJECT_COMMANDS);
 
 /** Full command list including toolkit-provided shared commands. */
 export const COMMANDS = toolkit.COMMANDS;
@@ -48,7 +46,9 @@ export const CommandsContext = createContext<CommandsContextValue | null>(null);
  */
 function useBridgedUI(): BridgedUI {
 	const ui = useUI();
-	const [confirmation, setConfirmation] = useState<PendingConfirmation | null>(null);
+	const [confirmation, setConfirmation] = useState<PendingConfirmation | null>(
+		null,
+	);
 
 	const activeOverlay = useMemo<string>(() => {
 		if (confirmation) return 'confirmation';
@@ -92,7 +92,14 @@ function useBridgedUI(): BridgedUI {
 			clearConfirmation,
 			cycleFocus: () => {},
 		}),
-		[ui, activeOverlay, setActiveOverlay, confirmation, requestConfirmation, clearConfirmation],
+		[
+			ui,
+			activeOverlay,
+			setActiveOverlay,
+			confirmation,
+			requestConfirmation,
+			clearConfirmation,
+		],
 	);
 }
 
@@ -148,19 +155,14 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 				return;
 
 			for (const command of COMMANDS) {
-				if (
-					isKeyMatch(key, input, command.keys) &&
-					command.isEnabled(deps)
-				) {
+				if (isKeyMatch(key, input, command.keys) && command.isEnabled(deps)) {
 					if (command.needsConfirmation?.(deps)) {
 						const message =
 							typeof command.confirmMessage === 'function'
 								? command.confirmMessage(deps)
 								: (command.confirmMessage ?? 'Are you sure?');
 						pendingCommandRef.current = command;
-						bridgedUI.requestConfirmation(message, () =>
-							command.execute(deps),
-						);
+						bridgedUI.requestConfirmation(message, () => command.execute(deps));
 						return;
 					}
 					command.execute(deps);
@@ -215,7 +217,13 @@ export const CommandsProvider: React.FC<CommandsProviderProps> = ({
 	}, [deps]);
 
 	const value: CommandsContextValue = useMemo(
-		() => ({ handleInput, getVisibleCommands, confirmation: bridgedUI.confirmation, commands: COMMANDS, deps }),
+		() => ({
+			handleInput,
+			getVisibleCommands,
+			confirmation: bridgedUI.confirmation,
+			commands: COMMANDS,
+			deps,
+		}),
 		[handleInput, getVisibleCommands, bridgedUI.confirmation, deps],
 	);
 

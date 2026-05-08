@@ -217,5 +217,5 @@ export function FieldList({
 	);
 }
 
-export { buildFieldItems };
 export type { FieldItem };
+export { buildFieldItems };

@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react';
+import type { RequestConfigContextValue } from '../../providers/RequestConfigProvider/RequestConfigProvider.types.js';
 import {
 	type AuthConfig,
 	DEFAULT_AUTH_CONFIG,
 } from '../../types/AuthConfig/index.js';
-
-import type { RequestConfigContextValue } from '../../providers/RequestConfigProvider/RequestConfigProvider.types.js';
 
 export const useRequestConfigState = (): RequestConfigContextValue => {
 	const [globalHeaders, setGlobalHeaders] = useState<Record<string, string>>(

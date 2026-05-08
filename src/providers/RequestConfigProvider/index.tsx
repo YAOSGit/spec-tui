@@ -6,9 +6,8 @@ import type {
 	RequestConfigProviderProps,
 } from './RequestConfigProvider.types.js';
 
-export const RequestConfigContext = createContext<RequestConfigContextValue | null>(
-	null,
-);
+export const RequestConfigContext =
+	createContext<RequestConfigContextValue | null>(null);
 
 export const RequestConfigProvider: React.FC<RequestConfigProviderProps> = ({
 	children,

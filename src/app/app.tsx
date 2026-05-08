@@ -1,8 +1,11 @@
 import * as fs from 'node:fs';
+import {
+	SplitPane,
+	StatusIcon,
+	TUILayout,
+} from '@yaos-git/toolkit/tui/components';
 import { Box, Text, useInput, useStdout } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
-import { SplitPane, StatusIcon, TUILayout } from '@yaos-git/toolkit/tui/components';
-import { theme } from '../theme.js';
 import { ConfigScreen } from '../components/ConfigScreen/index.js';
 import { EndpointDetail } from '../components/EndpointDetail/index.js';
 import { EndpointNavigator } from '../components/EndpointNavigator/index.js';
@@ -14,6 +17,7 @@ import { useNavigation } from '../hooks/useNavigation/index.js';
 import { useRequestConfig } from '../hooks/useRequestConfig/index.js';
 import { useSpec } from '../hooks/useSpec/index.js';
 import { useUI } from '../hooks/useUI/index.js';
+import { theme } from '../theme.js';
 import type { ResponseData } from '../types/ResponseData/index.js';
 import type { SentRequest } from '../types/SentRequest/index.js';
 import {

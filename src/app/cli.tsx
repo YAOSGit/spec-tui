@@ -1,6 +1,12 @@
 #!/usr/bin/env node
+import {
+	createCLI,
+	fatalError,
+	formatError,
+	getExitCode,
+	runIfMain,
+} from '@yaos-git/toolkit/cli';
 import { render } from 'ink';
-import { createCLI, fatalError, formatError, getExitCode, runIfMain } from '@yaos-git/toolkit/cli';
 import App from './index.js';
 
 declare const __CLI_VERSION__: string;

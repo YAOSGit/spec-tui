@@ -1,3 +1,4 @@
+import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
 import { Box, Text } from 'ink';
 import { extractBodySchemaFields } from '../../utils/bodySchema/index.js';
 import {
@@ -5,7 +6,6 @@ import {
 	formatBadgeColor,
 	formatBadgeLabel,
 } from '../../utils/contentType/index.js';
-import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
 import { FieldEditor } from '../FieldEditor/index.js';
 import { buildFieldItems, FieldList } from '../FieldList/index.js';
 import { RequestPreview } from '../RequestPreview/index.js';

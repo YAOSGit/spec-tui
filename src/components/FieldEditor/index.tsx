@@ -117,7 +117,9 @@ const FilePathInput = ({
 		<Box flexDirection="column">
 			<TextInput value={value} onChange={onChange} />
 			{value && (
-				<Text color={status.valid ? FIELD_VALID_COLOR : FIELD_INVALID_COLOR}>{status.label}</Text>
+				<Text color={status.valid ? FIELD_VALID_COLOR : FIELD_INVALID_COLOR}>
+					{status.label}
+				</Text>
 			)}
 		</Box>
 	);
@@ -197,7 +199,13 @@ const FileBrowser = ({
 				return (
 					<Text
 						key={entry.name}
-						color={selected ? FIELD_HIGHLIGHT_COLOR : entry.isDir ? FIELD_DIR_COLOR : undefined}
+						color={
+							selected
+								? FIELD_HIGHLIGHT_COLOR
+								: entry.isDir
+									? FIELD_DIR_COLOR
+									: undefined
+						}
 						bold={selected}
 						wrap="truncate"
 					>

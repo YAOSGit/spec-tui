@@ -1,5 +1,5 @@
-import { Box, Text } from 'ink';
 import { METHOD_COLORS } from '@yaos-git/toolkit/tui/http';
+import { Box, Text } from 'ink';
 import { SPEC_TITLE_COLOR } from './StatusBar.consts.js';
 import type { StatusBarProps } from './StatusBar.types.js';
 

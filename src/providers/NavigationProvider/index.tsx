@@ -6,7 +6,9 @@ import type {
 	NavigationProviderProps,
 } from './NavigationProvider.types.js';
 
-export const NavigationContext = createContext<NavigationContextValue | null>(null);
+export const NavigationContext = createContext<NavigationContextValue | null>(
+	null,
+);
 
 export const NavigationProvider: React.FC<NavigationProviderProps> = ({
 	children,
