@@ -4,7 +4,7 @@ import { parseSpec } from './index.js';
 
 const PETSTORE_PATH = path.resolve(
 	__dirname,
-	'../../../examples/basic/petstore.yaml',
+	'../../../examples/local-spec/petstore.yaml',
 );
 
 describe('OpenAPI parser', () => {
