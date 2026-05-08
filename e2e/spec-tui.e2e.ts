@@ -6,7 +6,7 @@ describe('spec-tui E2E', () => {
 	const cliPath = path.resolve(__dirname, '../dist/tui.js');
 	const _petstorePath = path.resolve(
 		__dirname,
-		'../examples/basic/petstore.yaml',
+		'../examples/local-spec/petstore.yaml',
 	);
 
 	it('prints version with --version', () => {

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const CLI_PATH = path.resolve(__dirname, '../dist/tui.js');
 const PETSTORE_YAML = path.resolve(
 	__dirname,
-	'../examples/basic/petstore.yaml',
+	'../examples/local-spec/petstore.yaml',
 );
 
 const run = (

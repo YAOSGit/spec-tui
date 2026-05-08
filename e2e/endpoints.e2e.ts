@@ -5,7 +5,7 @@ import { parseSpec } from '../src/parser/openapi/index.js';
 
 const PETSTORE_YAML = path.resolve(
 	__dirname,
-	'../examples/basic/petstore.yaml',
+	'../examples/local-spec/petstore.yaml',
 );
 const PETSTORE_JSON = path.resolve(__dirname, 'fixtures/petstore.json');
 const MULTIPART_SPEC = path.resolve(__dirname, 'fixtures/multipart-spec.yaml');
